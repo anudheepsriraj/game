@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAA Terminal Operations Manager - Refined Operational Logic</title>
+    <title>MAA Terminal Operations Manager - Professional Airport Controller</title>
     <style>
         :root {
             --bg-base: #070b14;
@@ -27,48 +27,119 @@
         header {
             background: #030712;
             border-bottom: 2px solid var(--border);
-            padding: 8px 18px;
+            padding: 6px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 10;
         }
-        .brand { font-size: 1rem; font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+        .brand { font-size: 0.95rem; font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+        
+        /* Airbus Annunciator Master System */
+        .airbus-annunciator { display: flex; gap: 6px; align-items: center; }
+        .annun-btn {
+            background: #1e1e24;
+            border: 2px solid #334155;
+            color: #475569;
+            padding: 4px 9px;
+            border-radius: 3px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .annun-btn.active-warn {
+            background: #451a03;
+            border-color: var(--warning);
+            color: var(--warning);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            animation: blink 1s infinite;
+        }
+        .annun-btn.active-boarding {
+            background: #082f49;
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            animation: blink 1s infinite;
+        }
+        .annun-btn.active-success {
+            background: #064e3b;
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            animation: blink 1s infinite;
+        }
+        .annun-btn.active-belts {
+            background: #4a1d96;
+            border-color: #c084fc;
+            color: #f3e8ff;
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.6);
+            animation: blink 0.8s infinite;
+        }
+
         .controls { display: flex; gap: 4px; align-items: center; }
-        .speed-btn { background: var(--bg-card); border: 1px solid var(--border); color: #fff; padding: 4px 9px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 0.75rem; }
+        .speed-btn { background: var(--bg-card); border: 1px solid var(--border); color: #fff; padding: 4px 8px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 0.72rem; }
         .speed-btn.active { background: var(--accent); color: #000; }
         .btn-pause { background: #3b0764; border-color: #a855f7; color: #f3e8ff; }
         .btn-pause.active { background: var(--warning); color: #000; border-color: var(--warning); }
-        .hud-stats { display: flex; gap: 10px; }
-        .stat-badge { background: var(--bg-panel); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+        .hud-stats { display: flex; gap: 8px; }
+        .stat-badge { background: var(--bg-panel); border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
         .stat-badge span { color: var(--accent); }
 
         /* Navigation */
         nav { display: flex; background: #050a17; border-bottom: 1px solid var(--border); overflow-x: auto; }
-        .tab-btn { background: none; border: none; color: var(--text-muted); padding: 10px 16px; cursor: pointer; font-weight: 600; font-size: 0.82rem; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); padding: 9px 15px; cursor: pointer; font-weight: 600; font-size: 0.8rem; border-bottom: 3px solid transparent; white-space: nowrap; }
         .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--bg-panel); }
 
-        /* Main View Container */
+        /* Workspace */
         main { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .view-section { display: none; flex-direction: column; gap: 12px; }
         .view-section.active { display: flex; }
 
-        /* Grid Layouts */
+        /* Grids & Cards */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
         .card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px; position: relative; transition: border-color 0.3s; }
         .card-title { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* FIDS Boards */
+        /* FIDS Boards & CSS Marquee */
         .fids-board { background: #020617; border: 2px solid #1e293b; border-radius: 6px; padding: 10px; }
-        .fids-header { font-size: 0.95rem; font-weight: 800; color: var(--fids-yellow); letter-spacing: 1.5px; border-bottom: 2px solid #1e293b; padding-bottom: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        table.fids-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-        table.fids-table th { background: #000; color: var(--text-muted); padding: 6px 8px; text-align: left; font-weight: 600; border-bottom: 1px solid #1e293b; }
-        table.fids-table td { padding: 7px 8px; border-bottom: 1px solid #0f172a; font-family: monospace; color: #fff; vertical-align: middle; }
+        .fids-header { font-size: 0.92rem; font-weight: 800; color: var(--fids-yellow); letter-spacing: 1.5px; border-bottom: 2px solid #1e293b; padding-bottom: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        table.fids-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+        table.fids-table th { background: #000; color: var(--text-muted); padding: 5px 8px; text-align: left; font-weight: 600; border-bottom: 1px solid #1e293b; }
+        table.fids-table td { padding: 6px 8px; border-bottom: 1px solid #0f172a; font-family: monospace; color: #fff; vertical-align: middle; }
         table.fids-table tr:hover { background: rgba(255,255,255,0.02); }
         .fids-status { font-weight: bold; color: var(--fids-yellow); }
 
-        /* Carousel Overhead Screen */
+        /* Smooth CSS-Keyframe LED Marquee */
+        .marquee-wrapper {
+            background: #020617;
+            border: 2px solid #334155;
+            border-radius: 4px;
+            padding: 6px 0;
+            overflow: hidden;
+            position: relative;
+            white-space: nowrap;
+        }
+        .marquee-track {
+            display: inline-block;
+            white-space: nowrap;
+            animation: tickerScroll 28s linear infinite;
+            font-family: monospace;
+            color: var(--fids-yellow);
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding-left: 100%;
+        }
+        .marquee-wrapper:hover .marquee-track { animation-play-state: paused; }
+        @keyframes tickerScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Carousel Screen */
         .carousel-pax-board {
             background: #000;
             border: 2px solid #334155;
@@ -82,20 +153,23 @@
         .carousel-pax-board .pax-status-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--fids-yellow); }
 
         /* Tables */
-        table.ops-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        table.ops-table th { background: #030712; color: var(--text-muted); padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-        table.ops-table td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        table.ops-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+        table.ops-table th { background: #030712; color: var(--text-muted); padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+        table.ops-table th:hover { color: var(--accent); }
+        table.ops-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 
         /* Inputs & Buttons */
-        select, input { background: #030712; border: 1px solid var(--border); color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 0.78rem; }
-        .btn { background: var(--accent); color: #000; border: none; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 3px; cursor: pointer; transition: 0.15s; }
+        select, input[type="text"] { background: #030712; border: 1px solid var(--border); color: #fff; padding: 4px 8px; border-radius: 3px; font-size: 0.78rem; }
+        input[type="text"]:focus { border-color: var(--accent); outline: none; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 5px 9px; font-size: 0.74rem; font-weight: 700; border-radius: 3px; cursor: pointer; transition: 0.15s; }
         .btn:hover { opacity: 0.85; }
         .btn-success { background: var(--success); color: #fff; }
         .btn-warn { background: var(--warning); color: #000; }
         .btn-danger { background: var(--danger); color: #fff; }
+        .btn-punch { background: #8b5cf6; color: #fff; border: 1px solid #c084fc; font-weight: 800; animation: blink 1.2s infinite; }
         .btn-muted { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); }
         .btn-fix { background: #6366f1; color: #fff; padding: 2px 6px; font-size: 0.68rem; margin-top: 4px; }
-        .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+        .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; animation: none; }
 
         .progress-track { background: #030712; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; border: 1px solid var(--border); }
         .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.2s linear; }
@@ -105,13 +179,13 @@
             background: #020617;
             border: 1px solid var(--border);
             border-radius: 4px;
-            height: 90px;
+            height: 75px;
             overflow-y: auto;
             padding: 6px 10px;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
         }
         .log-entry { display: flex; gap: 8px; }
         .log-time { color: var(--text-muted); }
@@ -119,44 +193,11 @@
         .log-warn { color: var(--warning); font-weight: 600; }
         .log-err { color: var(--danger); font-weight: bold; }
 
-        /* Belt Toggles */
-        .belt-toggle {
-            padding: 3px 6px;
-            font-size: 0.72rem;
-            font-weight: bold;
-            border: 1px solid var(--border);
-            background: #060911;
-            color: var(--text-muted);
-            border-radius: 3px;
-            cursor: pointer;
-            margin-right: 2px;
-        }
-        .belt-toggle.selected {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-        }
-
-        /* Banner Alerts */
-        .alert-banner {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .alert-banner.active { display: flex; }
-
         .incident-badge {
             background: rgba(239, 68, 68, 0.25);
             border: 1px solid var(--danger);
             color: #fca5a5;
-            padding: 3px 6px;
+            padding: 4px 8px;
             border-radius: 3px;
             font-size: 0.72rem;
             margin-top: 4px;
@@ -165,34 +206,21 @@
             gap: 2px;
         }
 
-        .fault-badge {
-            background: var(--danger);
-            color: #fff;
-            padding: 2px 6px;
+        .alert-callout {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+            padding: 4px 6px;
             border-radius: 3px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        /* Flight Color Pill */
-        .flight-pill {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: bold;
-            color: #000;
-            margin-right: 4px;
+            margin-top: 4px;
         }
 
-        /* Turnaround Task Group */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+        .flight-pill { display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 0.72rem; font-weight: bold; color: #000; margin-right: 4px; }
+
         .turnaround-task-group {
             display: flex;
             flex-direction: column;
@@ -203,19 +231,77 @@
             border-radius: 4px;
             border: 1px solid var(--border);
         }
-        .turnaround-task-row {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.72rem;
-        }
-        .turnaround-task-header {
+        .turnaround-task-row { display: flex; flex-direction: column; font-size: 0.72rem; }
+        .turnaround-task-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 2px; }
+
+        .section-sub-header {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--fids-yellow);
+            padding: 6px 12px;
+            background: #030712;
+            border-left: 4px solid var(--fids-yellow);
+            border-radius: 4px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
-            font-weight: 600;
-            margin-bottom: 2px;
+            align-items: center;
         }
 
-        /* Modals */
+        /* Checkin Controller */
+        .checkin-selector-bar {
+            background: #030712;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .desk-grid-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+        }
+        .desk-cell {
+            background: #0a0f1d;
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .desk-cell:hover { border-color: var(--accent); transform: translateY(-1px); }
+        .desk-cell.occupied { background: #18243b; }
+        .desk-cell.faulted { border-color: var(--danger) !important; background: #3b1117 !important; }
+
+        /* Baggage RMS Strip */
+        .baggage-dock-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+        .baggage-dock-card {
+            background: #030712;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px 12px;
+            min-width: 210px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* Modal Sheet */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -232,7 +318,7 @@
             border: 2px solid var(--border);
             border-radius: 8px;
             padding: 24px;
-            max-width: 440px;
+            max-width: 480px;
             width: 90%;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             text-align: center;
@@ -246,8 +332,30 @@
 
     <header>
         <div class="brand">✈️ CHENNAI INTERNATIONAL (MAA) - TERMINAL OPS</div>
+        
+        <!-- AIRBUS MASTER CAUTION ANNUNCIATOR -->
+        <div class="airbus-annunciator">
+            <button class="annun-btn" id="btn-master-loading" onclick="switchView('stands', document.querySelectorAll('.tab-btn')[1])">
+                ⚡ LOADING
+            </button>
+            <button class="annun-btn" id="btn-master-boarding" onclick="switchView('boarding', document.querySelectorAll('.tab-btn')[3])">
+                🚪 BOARDING
+            </button>
+            <button class="annun-btn" id="btn-master-release" onclick="switchView('stands', document.querySelectorAll('.tab-btn')[1])">
+                🛫 RELEASE
+            </button>
+            <button class="annun-btn" id="btn-master-belts" onclick="switchView('baggage', document.querySelectorAll('.tab-btn')[4])">
+                🧳 BELTS READY
+            </button>
+        </div>
+
+        <div class="hud-stats">
+            <div class="stat-badge">SIM TIME: <span id="clock-display">06:00:00 AM</span></div>
+            <div class="stat-badge">OTP: <span id="otp-display">100%</span></div>
+            <div class="stat-badge">SCORE: <span id="score-display">500</span> PTS</div>
+        </div>
+
         <div class="controls">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">SIM CONTROL:</span>
             <button class="speed-btn btn-pause" id="pause-toggle-btn" onclick="togglePauseGame()">⏸ PAUSE</button>
             <button class="speed-btn active" id="spd-1" onclick="setSpeed(1, this)">1x</button>
             <button class="speed-btn" id="spd-2" onclick="setSpeed(2, this)">2x</button>
@@ -255,31 +363,49 @@
             <button class="speed-btn" id="spd-10" onclick="setSpeed(10, this)">10x</button>
             <button class="speed-btn" id="spd-20" onclick="setSpeed(20, this)">20x</button>
         </div>
-        <div class="hud-stats">
-            <div class="stat-badge">SIM CLOCK: <span id="clock-display">06:00:00 AM</span></div>
-            <div class="stat-badge">OTP: <span id="otp-display">100%</span></div>
-            <div class="stat-badge">SCORE: <span id="score-display">500</span> PTS</div>
-        </div>
     </header>
 
     <nav>
-        <button class="tab-btn active" onclick="switchView('fids', this)">Terminal FIDS Boards</button>
-        <button class="tab-btn" onclick="switchView('stands', this)">Apron & Turnaround (5 Stands)</button>
+        <button class="tab-btn active" onclick="switchView('fids', this)">Terminal FIDS</button>
+        <button class="tab-btn" onclick="switchView('stands', this)">Apron & Stands (12 Stands)</button>
         <button class="tab-btn" onclick="switchView('checkin', this)">Check-in Island (20 Desks)</button>
-        <button class="tab-btn" onclick="switchView('security', this)">Security Floor (2 Levels)</button>
-        <button class="tab-btn" onclick="switchView('boarding', this)">Boarding Gates (Lounge Flow)</button>
-        <button class="tab-btn" onclick="switchView('baggage', this)">Arrival Belts & Reclaim</button>
+        <button class="tab-btn" onclick="switchView('boarding', this)">Boarding Gates (12 Gates & Buses)</button>
+        <button class="tab-btn" onclick="switchView('baggage', this)">Arrival Belts & Reclaim Hub</button>
     </nav>
 
-    <div style="padding: 0 12px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
-        <div id="overcrowd-alert" class="alert-banner">
-            <span>🚨 SECURITY FLOOR OVERCROWDED: Capacity limit reached! Halt or throttle check-in desks!</span>
-        </div>
+    <div style="padding: 0 12px; margin-top: 6px;">
         <div id="notification-box"></div>
     </div>
 
     <main>
+        <!-- 1. FIDS -->
         <section id="view-fids" class="view-section active">
+            <!-- PA BROADCAST MARQUEE CONTROLLER -->
+            <div class="card" style="padding: 8px 12px; margin-bottom: 4px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <strong style="color: var(--fids-yellow); font-size: 0.8rem; white-space: nowrap;">📢 PA TICKER:</strong>
+                    <input type="text" id="fids-marquee-input" placeholder="Type custom announcement..." style="flex: 1;">
+                    <button class="btn btn-warn" onclick="publishMarquee()">PUBLISH</button>
+                    <button class="btn btn-muted" onclick="clearMarquee()">RESET</button>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; font-size:0.7rem;">
+                    <span style="color:var(--text-muted); align-self:center;">Presets:</span>
+                    <button class="btn btn-muted" style="padding:2px 6px; font-size:0.65rem;" onclick="setMarqueePreset('⚠️ Due to heavy thunderstorms over Chennai, ramp operations are proceeding with caution.')">⛈️ Weather Alert</button>
+                    <button class="btn btn-muted" style="padding:2px 6px; font-size:0.65rem;" onclick="setMarqueePreset('📢 Final boarding call for departing flights. Please proceed immediately to your assigned gate.')">🚪 Final Call</button>
+                    <button class="btn btn-muted" style="padding:2px 6px; font-size:0.65rem;" onclick="setMarqueePreset('🧳 Luggage offloading in progress. Please check overhead screens in Reclaim Hall.')">🧳 Baggage Update</button>
+                    <button class="btn btn-muted" style="padding:2px 6px; font-size:0.65rem;" onclick="setMarqueePreset('🚧 Rapid exit taxiway maintenance underway. Minor taxi delays expected.')">🚧 Taxiway Advisory</button>
+                    <button class="btn btn-muted" style="padding:2px 6px; font-size:0.65rem;" onclick="setMarqueePreset('🛂 Keep boarding pass and government ID handy for boarding verification.')">🛂 Gate Inspection</button>
+                    <button class="btn btn-muted" style="padding:2px 6px; font-size:0.65rem;" onclick="setMarqueePreset('ℹ️ Unattended baggage will be confiscated by airport security CISF.')">🔒 Security Notice</button>
+                </div>
+            </div>
+
+            <!-- CSS KEYFRAME ROLLING MARQUEE -->
+            <div class="marquee-wrapper">
+                <div class="marquee-track" id="fids-marquee-display">
+                    ✈️ WELCOME TO CHENNAI INTERNATIONAL AIRPORT (MAA) — OPERATIONAL EFFICIENCY: 100% — CHECK FIDS SCREENS FOR LIVE GATE AND BAGGAGE ALLOCATIONS
+                </div>
+            </div>
+
             <div class="grid-2">
                 <div class="fids-board">
                     <div class="fids-header">
@@ -294,8 +420,8 @@
                                 <th>ORIGIN</th>
                                 <th>STAND</th>
                                 <th>BELT(S)</th>
-                                <th>PUBLIC STATUS</th>
-                                <th>MANUAL OVERRIDE</th>
+                                <th>STATUS</th>
+                                <th>PUNCH / CLEAR</th>
                             </tr>
                         </thead>
                         <tbody id="fids-arr-tbody"></tbody>
@@ -315,8 +441,8 @@
                                 <th>DESTINATION</th>
                                 <th>DESKS</th>
                                 <th>GATE</th>
-                                <th>PUBLIC STATUS</th>
-                                <th>MANUAL OVERRIDE</th>
+                                <th>STATUS</th>
+                                <th>PUNCH / CLEAR</th>
                             </tr>
                         </thead>
                         <tbody id="fids-dep-tbody"></tbody>
@@ -325,51 +451,72 @@
             </div>
         </section>
 
+        <!-- 2. APRON & STANDS (STAND CARDS ON TOP FOR SCANNING) -->
         <section id="view-stands" class="view-section">
-            <div class="card">
-                <div class="card-title">Inbound Traffic Management, Payload & Turnaround Controls</div>
+            <div>
+                <div class="section-sub-header">
+                    <span>🛬 APRON HARDSTANDS & GATES (Stands 1–12 Live Operations)</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Real-Time Turnaround Progress & Stand Fault Warnings</span>
+                </div>
+                <div class="grid-layout" id="stands-card-grid"></div>
+            </div>
+
+            <div class="card" style="margin-top:8px;">
+                <div class="card-title">Inbound Stand Management & Ground Logistics (Click headers to sort)</div>
                 <table class="ops-table">
                     <thead>
                         <tr>
-                            <th>FLIGHT / ROUTE</th>
-                            <th>AIRCRAFT</th>
-                            <th>INBOUND PAYLOAD</th>
-                            <th>TOUCHDOWN ETA</th>
-                            <th>FLIGHT PHASE</th>
-                            <th>ASSIGN STAND</th>
-                            <th>ASSIGN BELTS (1-5)</th>
+                            <th onclick="sortTable('stands', 'name')">FLIGHT / ROUTE ⬍</th>
+                            <th onclick="sortTable('stands', 'type')">AIRCRAFT ⬍</th>
+                            <th onclick="sortTable('stands', 'payload')">INBOUND PAYLOAD ⬍</th>
+                            <th onclick="sortTable('stands', 'eta')">TOUCHDOWN ETA ⬍</th>
+                            <th onclick="sortTable('stands', 'phase')">FLIGHT PHASE ⬍</th>
+                            <th onclick="sortTable('stands', 'stand')">ASSIGN STAND (FIT ENFORCED) ⬍</th>
+                            <th>RECLAIM BELTS</th>
                             <th>EMERGENCY ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody id="stands-alloc-tbody"></tbody>
                 </table>
             </div>
-            <div class="grid-layout" id="stands-card-grid"></div>
         </section>
 
+        <!-- 3. CHECK-IN DESK MANAGEMENT -->
         <section id="view-checkin" class="view-section">
+            <div class="checkin-selector-bar">
+                <strong style="color:var(--accent); font-size:0.85rem;">🎯 ACTIVE ASSIGNMENT TARGET:</strong>
+                <select id="active-flight-brush" style="font-weight:bold;"></select>
+                <div style="font-size:0.75rem; color:var(--text-muted);">
+                    Click any counter below to toggle assignment. Click auto buttons for bulk desks.
+                </div>
+                <button class="btn btn-success" onclick="assignBrushAuto(3)">⚡ Auto 3 Desks</button>
+                <button class="btn btn-warn" onclick="assignBrushAuto(4)">⚡ Auto 4 Desks</button>
+                <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+                    <span id="checkin-usage-metric" style="color:var(--text-muted); font-size:0.8rem;">0/20 Active</span>
+                    <button class="btn btn-warn" id="toggle-pause-checkin-btn" onclick="toggleGlobalCheckin()">Pause All Desks</button>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-title">
-                    <span>Active Island Overview (20 Desks - One-Click Dropdown Allocator)</span>
-                    <div>
-                        <span id="checkin-usage-metric" style="color:var(--text-muted); margin-right: 8px;">0/20 Active</span>
-                        <button class="btn btn-warn" id="toggle-pause-checkin-btn" onclick="toggleGlobalCheckin()">Pause All Desks</button>
-                    </div>
+                    <span>Check-In Counters (1–20) — Click any tile to assign/unassign selected flight</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Green = Active | Amber = Paused | Grey = Idle</span>
                 </div>
-                <div class="grid-layout" id="checkin-desks-grid" style="grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));"></div>
+                <div class="desk-grid-matrix" id="checkin-matrix-grid"></div>
             </div>
+
             <div class="card">
-                <div class="card-title">Flight Desk Allocations, Flow Controls & Passenger Intake</div>
+                <div class="card-title">Departing Flights Check-In Status (Click headers to sort)</div>
                 <table class="ops-table">
                     <thead>
                         <tr>
-                            <th>OUTBOUND FLIGHT</th>
-                            <th>TARGET DEPARTURE (ETD)</th>
-                            <th>LOAD</th>
-                            <th>FLOW RATE</th>
-                            <th>DESKS ASSIGNED</th>
-                            <th>DESK CONTROLS</th>
-                            <th>PROGRESS & ACTIONS</th>
+                            <th onclick="sortTable('checkin', 'flight')">OUTBOUND FLIGHT ⬍</th>
+                            <th onclick="sortTable('checkin', 'etd')">TARGET DEPARTURE (ETD) ⬍</th>
+                            <th onclick="sortTable('checkin', 'load')">BOOKED LOAD ⬍</th>
+                            <th onclick="sortTable('checkin', 'flow')">FLOW RATE ⬍</th>
+                            <th onclick="sortTable('checkin', 'desks')">DESKS ALLOCATED ⬍</th>
+                            <th>CONTROLS</th>
+                            <th onclick="sortTable('checkin', 'progress')">PROGRESS ⬍</th>
                         </tr>
                     </thead>
                     <tbody id="checkin-table-tbody"></tbody>
@@ -377,29 +524,63 @@
             </div>
         </section>
 
-        <section id="view-security" class="view-section">
-            <div class="grid-layout" id="security-floors-grid"></div>
-        </section>
-
+        <!-- 4. BOARDING GATES -->
         <section id="view-boarding" class="view-section">
-            <div class="grid-layout" id="boarding-gates-grid"></div>
+            <div class="card">
+                <div class="card-title">
+                    <span>Apron Shuttle Bus Fleet Manager & Gate Allocator</span>
+                    <span style="font-size:0.8rem; color:var(--accent);" id="bus-fleet-status">Available in Pool: 4 / 4</span>
+                </div>
+                <div style="font-size:0.8rem; display:flex; gap:16px; color:var(--text-muted); margin-top:4px;">
+                    <span>Flights Docked: <strong id="docked-flights-count" style="color:#fff;">0</strong></span>
+                    <span>Gates Assigned: <strong id="assigned-gates-count" style="color:var(--success);">0</strong></span>
+                    <span>Gates Pending: <strong id="unassigned-gates-count" style="color:var(--danger);">0</strong></span>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-sub-header">
+                    <span>🛬 SECTION 1: CONTACT BOARDING GATES (Direct Aerobridge Connections)</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Strictly Stand-Concurrently Linked (Stands 1–8 ➔ Gates G1–G8)</span>
+                </div>
+                <div class="grid-layout" id="boarding-contact-grid"></div>
+            </div>
+
+            <div style="margin-top:10px;">
+                <div class="section-sub-header" style="border-left-color: var(--accent); color: var(--accent);">
+                    <span>🚌 SECTION 2: REMOTE BUS BOARDING GATES (Apron Shuttle Cobus Transfer)</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Available for Remote Stands 9–12 or Jetbridge Bypass (Gates R1–R4)</span>
+                </div>
+                <div class="grid-layout" id="boarding-remote-grid"></div>
+            </div>
         </section>
 
+        <!-- 5. ARRIVAL BAGGAGE BELTS & RMS HUB -->
         <section id="view-baggage" class="view-section">
+            <div class="card">
+                <div class="card-title">
+                    <span>📥 Inbound Unassigned Flights Queue (AOCC Resource Allocator)</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Click Auto-Assign to allocate available carousels</span>
+                </div>
+                <div class="baggage-dock-strip" id="baggage-dock-strip"></div>
+            </div>
+
             <div class="grid-layout" id="baggage-belts-grid"></div>
         </section>
     </main>
 
+    <!-- PAUSE MODAL -->
     <div id="pause-modal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-title">⏸ SIMULATION PAUSED</div>
-            <div class="modal-desc">Airport operations and clock are frozen. Review your active terminal allocations or click resume when ready.</div>
+            <div class="modal-desc">Airport operations and clock are frozen. Click resume when ready.</div>
             <div class="modal-actions">
                 <button class="btn btn-success" style="padding: 10px 24px; font-size: 0.9rem;" onclick="togglePauseGame()">RESUME OPERATIONS</button>
             </div>
         </div>
     </div>
 
+    <!-- CONFIRMATION ACTION MODAL -->
     <div id="confirm-modal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-title" id="confirm-modal-title">CONFIRM ACTION</div>
@@ -412,15 +593,37 @@
     </div>
 
     <script>
-        // --- MASTER AIRPORT CONFIGURATION ---
+        // --- MASTER AIRPORT TOPOGRAPHY ---
         const AIRPORT = {
             stands: [
-                { id: "Stand 1", size: "S/M", label: "Narrowbody (ATR/A320)", activeIncident: null },
-                { id: "Stand 2", size: "S/M", label: "Narrowbody (ATR/A320)", activeIncident: null },
-                { id: "Stand 3", size: "M", label: "Narrowbody (A320/A321)", activeIncident: null },
-                { id: "Stand 4", size: "M", label: "Narrowbody (A321)", activeIncident: null },
-                { id: "Stand 5", size: "L", label: "Widebody (B777/A350)", activeIncident: null }
+                { id: "Stand 1", size: "M", isRemote: false, label: "Contact Stand (A320/A321 Only)", activeIncident: null },
+                { id: "Stand 2", size: "M", isRemote: false, label: "Contact Stand (A320/A321 Only)", activeIncident: null },
+                { id: "Stand 3", size: "M", isRemote: false, label: "Contact Stand (A320/A321 Only)", activeIncident: null },
+                { id: "Stand 4", size: "M", isRemote: false, label: "Contact Stand (A320/A321 Only)", activeIncident: null },
+                { id: "Stand 5", size: "L", isRemote: false, label: "Contact Stand (Widebody B777/A350/B787)", activeIncident: null },
+                { id: "Stand 6", size: "L", isRemote: false, label: "Contact Stand (Widebody B777/A350/B787)", activeIncident: null },
+                { id: "Stand 7", size: "L", isRemote: false, label: "Contact Stand (Widebody B777/A350/B787)", activeIncident: null },
+                { id: "Stand 8", size: "L", isRemote: false, label: "Contact Stand (Widebody B777/A350/B787)", activeIncident: null },
+                { id: "Stand 9", size: "ALL", isRemote: true, label: "Remote Hardstand (ATR/Turboprop/Narrow/Widebody)", activeIncident: null },
+                { id: "Stand 10", size: "ALL", isRemote: true, label: "Remote Hardstand (ATR/Turboprop/Narrow/Widebody)", activeIncident: null },
+                { id: "Stand 11", size: "ALL", isRemote: true, label: "Remote Hardstand (ATR/Turboprop/Narrow/Widebody)", activeIncident: null },
+                { id: "Stand 12", size: "ALL", isRemote: true, label: "Remote Hardstand (ATR/Turboprop/Narrow/Widebody)", activeIncident: null }
             ],
+            gates: [
+                { id: "Gate G1", isRemote: false, matchingStand: "Stand 1" },
+                { id: "Gate G2", isRemote: false, matchingStand: "Stand 2" },
+                { id: "Gate G3", isRemote: false, matchingStand: "Stand 3" },
+                { id: "Gate G4", isRemote: false, matchingStand: "Stand 4" },
+                { id: "Gate G5", isRemote: false, matchingStand: "Stand 5" },
+                { id: "Gate G6", isRemote: false, matchingStand: "Stand 6" },
+                { id: "Gate G7", isRemote: false, matchingStand: "Stand 7" },
+                { id: "Gate G8", isRemote: false, matchingStand: "Stand 8" },
+                { id: "Remote R1", isRemote: true, buses: 1, maxBuses: 4, busTimer: 0, busPaxOnBoard: 0, activeIncident: null },
+                { id: "Remote R2", isRemote: true, buses: 1, maxBuses: 4, busTimer: 0, busPaxOnBoard: 0, activeIncident: null },
+                { id: "Remote R3", isRemote: true, buses: 1, maxBuses: 4, busTimer: 0, busPaxOnBoard: 0, activeIncident: null },
+                { id: "Remote R4", isRemote: true, buses: 1, maxBuses: 4, busTimer: 0, busPaxOnBoard: 0, activeIncident: null }
+            ],
+            totalBuses: 4,
             totalDesks: 20,
             desksData: Array.from({ length: 20 }, (_, i) => ({
                 id: i + 1,
@@ -429,215 +632,152 @@
                 activeIncident: null
             })),
             belts: [
-                { 
-                    id: 1, maxCapacity: 220, currentBagsOnBelt: 0, 
-                    assignedFlightInId: null, manualStatus: null,
-                    totalInductedBags: 0, firstBagArrived: false,
-                    isCompleted: false, jammed: false, activeIncident: null 
-                },
-                { 
-                    id: 2, maxCapacity: 220, currentBagsOnBelt: 0, 
-                    assignedFlightInId: null, manualStatus: null,
-                    totalInductedBags: 0, firstBagArrived: false,
-                    isCompleted: false, jammed: false, activeIncident: null 
-                },
-                { 
-                    id: 3, maxCapacity: 220, currentBagsOnBelt: 0, 
-                    assignedFlightInId: null, manualStatus: null,
-                    totalInductedBags: 0, firstBagArrived: false,
-                    isCompleted: false, jammed: false, activeIncident: null 
-                },
-                { 
-                    id: 4, maxCapacity: 280, currentBagsOnBelt: 0, 
-                    assignedFlightInId: null, manualStatus: null,
-                    totalInductedBags: 0, firstBagArrived: false,
-                    isCompleted: false, jammed: false, activeIncident: null 
-                },
-                { 
-                    id: 5, maxCapacity: 350, currentBagsOnBelt: 0, 
-                    assignedFlightInId: null, manualStatus: null,
-                    totalInductedBags: 0, firstBagArrived: false,
-                    isCompleted: false, jammed: false, activeIncident: null 
-                }
-            ],
-            secFloors: [
-                { id: 1, name: "Floor 1 (Domestic Security)", maxCapacity: 220, baseRateSec: 0.18, isIntl: false, activeIncident: null },
-                { id: 2, name: "Floor 2 (International Security)", maxCapacity: 160, baseRateSec: 0.09, isIntl: true, activeIncident: null }
+                { id: 1, maxCapacity: 220, currentBagsOnBelt: 0, assignedFlightInId: null, manualStatus: null, totalInductedBags: 0, firstBagArrived: false, isCompleted: false, jammed: false, activeIncident: null },
+                { id: 2, maxCapacity: 220, currentBagsOnBelt: 0, assignedFlightInId: null, manualStatus: null, totalInductedBags: 0, firstBagArrived: false, isCompleted: false, jammed: false, activeIncident: null },
+                { id: 3, maxCapacity: 220, currentBagsOnBelt: 0, assignedFlightInId: null, manualStatus: null, totalInductedBags: 0, firstBagArrived: false, isCompleted: false, jammed: false, activeIncident: null },
+                { id: 4, maxCapacity: 280, currentBagsOnBelt: 0, assignedFlightInId: null, manualStatus: null, totalInductedBags: 0, firstBagArrived: false, isCompleted: false, jammed: false, activeIncident: null },
+                { id: 5, maxCapacity: 350, currentBagsOnBelt: 0, assignedFlightInId: null, manualStatus: null, totalInductedBags: 0, firstBagArrived: false, isCompleted: false, jammed: false, activeIncident: null }
             ],
             globalCheckinPaused: false
         };
 
         const BASE_TIME = 360 * 60; // 06:00:00 AM
 
-        // Scheduled Operations with Color Coding
-        let flights = [
-            {
-                inId: "6E 101", outId: "6E 102",
-                airline: "IndiGo", type: "A320neo", sizeReq: "M",
-                color: "#38bdf8", // Sky Blue
-                origin: "BOM (Mumbai)", dest: "DEL (Delhi)", isIntl: false,
-                inboundPax: 180, inboundBags: 195,
-                outboundPax: 175, outboundBags: 180,
-                
-                approachSec: BASE_TIME + 0,      // 06:00:00
-                touchdownSec: BASE_TIME + 120,   // 06:02:00
-                landingRollEndSec: BASE_TIME + 165,
-                taxiInEndSec: BASE_TIME + 345,   // 06:05:45
-                depSec: BASE_TIME + 2100,        // 06:35:00
+        let sortConfig = {
+            stands: { key: 'eta', asc: true },
+            checkin: { key: 'etd', asc: true },
+            boarding: { key: 'etd', asc: true },
+            baggage: { key: 'id', asc: true }
+        };
 
-                stand: null, belts: [], desks: [], secFloor: 1,
-                state: "SCHEDULED",
-                manualArrStatus: null, manualDepStatus: null,
-                penalizedForGate: false, beltWarned: false, activeIncident: null,
-
-                isOutboundApproved: false,
-                checkinPaused: false,
-
-                // Baggage Pipeline with Basement Buffer
-                bagTransitTimer: 75,
-                pickupDelayTimer: 25,
-                bagsOffloadedTotal: 0,
-                bagsWaitingInBasement: 0,
-                totalBatches: 3,
-                batchesArrived: 0,
-                batchIntervalTimer: 0,
-
-                disembarkPax: 0, checkedInPax: 0, checkedInBags: 0, secClearedPax: 0, boardedPax: 0,
-                boardingStarted: false, boardingHeld: false,
-                service: { clean: 0, fuel: 0, cater: 0 }
-            },
-            {
-                inId: "AI 544", outId: "AI 545",
-                airline: "Air India", type: "B777-300ER", sizeReq: "L",
-                color: "#f43f5e", // Rose Red
-                origin: "DXB (Dubai)", dest: "DXB (Dubai)", isIntl: true,
-                inboundPax: 330, inboundBags: 620,
-                outboundPax: 310, outboundBags: 590,
-                
-                approachSec: BASE_TIME + 180,    // 06:03:00
-                touchdownSec: BASE_TIME + 360,   // 06:06:00
-                landingRollEndSec: BASE_TIME + 410, 
-                taxiInEndSec: BASE_TIME + 680,   // 06:11:20
-                depSec: BASE_TIME + 3900,        // 07:05:00
-
-                stand: null, belts: [], desks: [], secFloor: 2,
-                state: "SCHEDULED",
-                manualArrStatus: null, manualDepStatus: null,
-                penalizedForGate: false, beltWarned: false, activeIncident: null,
-
-                isOutboundApproved: false,
-                checkinPaused: false,
-
-                bagTransitTimer: 90,
-                pickupDelayTimer: 25,
-                bagsOffloadedTotal: 0,
-                bagsWaitingInBasement: 0,
-                totalBatches: 5,
-                batchesArrived: 0,
-                batchIntervalTimer: 0,
-
-                disembarkPax: 0, checkedInPax: 0, checkedInBags: 0, secClearedPax: 0, boardedPax: 0,
-                boardingStarted: false, boardingHeld: false,
-                service: { clean: 0, fuel: 0, cater: 0 }
-            },
-            {
-                inId: "6E 712", outId: "6E 713",
-                airline: "IndiGo", type: "ATR-72", sizeReq: "S/M",
-                color: "#a855f7", // Purple
-                origin: "TRZ (Trichy)", dest: "CJB (Coimbatore)", isIntl: false,
-                inboundPax: 72, inboundBags: 65,
-                outboundPax: 68, outboundBags: 60,
-
-                approachSec: BASE_TIME + 400,    // 06:06:40
-                touchdownSec: BASE_TIME + 580,   // 06:09:40
-                landingRollEndSec: BASE_TIME + 620,
-                taxiInEndSec: BASE_TIME + 780,   // 06:13:00
-                depSec: BASE_TIME + 1900,        // 06:31:40
-
-                stand: null, belts: [], desks: [], secFloor: 1,
-                state: "SCHEDULED",
-                manualArrStatus: null, manualDepStatus: null,
-                penalizedForGate: false, beltWarned: false, activeIncident: null,
-
-                isOutboundApproved: false,
-                checkinPaused: false,
-
-                bagTransitTimer: 50,
-                pickupDelayTimer: 20,
-                bagsOffloadedTotal: 0,
-                bagsWaitingInBasement: 0,
-                totalBatches: 2,
-                batchesArrived: 0,
-                batchIntervalTimer: 0,
-
-                disembarkPax: 0, checkedInPax: 0, checkedInBags: 0, secClearedPax: 0, boardedPax: 0,
-                boardingStarted: false, boardingHeld: false,
-                service: { clean: 0, fuel: 0, cater: 0 }
-            },
-            {
-                inId: "IX 611", outId: "IX 612",
-                airline: "Air India Express", type: "A321neo", sizeReq: "M",
-                color: "#f59e0b", // Amber
-                origin: "SIN (Singapore)", dest: "IXM (Madurai)", isIntl: true,
-                inboundPax: 215, inboundBags: 360,
-                outboundPax: 200, outboundBags: 330,
-
-                approachSec: BASE_TIME + 600,    // 06:10:00
-                touchdownSec: BASE_TIME + 780,   // 06:13:00
-                landingRollEndSec: BASE_TIME + 825,
-                taxiInEndSec: BASE_TIME + 1040,  // 06:17:20
-                depSec: BASE_TIME + 3300,        // 06:55:00
-
-                stand: null, belts: [], desks: [], secFloor: 2,
-                state: "SCHEDULED",
-                manualArrStatus: null, manualDepStatus: null,
-                penalizedForGate: false, beltWarned: false, activeIncident: null,
-
-                isOutboundApproved: false,
-                checkinPaused: false,
-
-                bagTransitTimer: 80,
-                pickupDelayTimer: 25,
-                bagsOffloadedTotal: 0,
-                bagsWaitingInBasement: 0,
-                totalBatches: 4,
-                batchesArrived: 0,
-                batchIntervalTimer: 0,
-
-                disembarkPax: 0, checkedInPax: 0, checkedInBags: 0, secClearedPax: 0, boardedPax: 0,
-                boardingStarted: false, boardingHeld: false,
-                service: { clean: 0, fuel: 0, cater: 0 }
-            }
+        // --- REALISTIC CHENNAI (MAA) WAVE-BASED SCHEDULE GENERATOR ---
+        const AIRLINE_ROUTES = [
+            // Morning Westbound Long-Hauls
+            { airline: "British Airways", code: "BA", origin: "LHR (London)", dest: "LHR (London)", isIntl: true, type: "B787-9", sizeReq: "L", isTurboprop: false, needsCatering: true, pax: 290, bags: 520, color: "#2563eb", wave: "WEST" },
+            { airline: "Lufthansa", code: "LH", origin: "FRA (Frankfurt)", dest: "FRA (Frankfurt)", isIntl: true, type: "A350-900", sizeReq: "L", isTurboprop: false, needsCatering: true, pax: 295, bags: 540, color: "#facc15", wave: "WEST" },
+            { airline: "Emirates", code: "EK", origin: "DXB (Dubai)", dest: "DXB (Dubai)", isIntl: true, type: "B777-300ER", sizeReq: "L", isTurboprop: false, needsCatering: true, pax: 350, bags: 680, color: "#e11d48", wave: "WEST" },
+            { airline: "Air India", code: "AI", origin: "DXB (Dubai)", dest: "DXB (Dubai)", isIntl: true, type: "B777-300ER", sizeReq: "L", isTurboprop: false, needsCatering: true, pax: 340, bags: 640, color: "#f43f5e", wave: "WEST" },
+            // Domestic Hops & Regional Turboprops
+            { airline: "IndiGo", code: "6E", origin: "DEL (Delhi)", dest: "BOM (Mumbai)", isIntl: false, type: "A321neo", sizeReq: "M", isTurboprop: false, needsCatering: true, pax: 210, bags: 220, color: "#38bdf8", wave: "DOM" },
+            { airline: "IndiGo", code: "6E", origin: "TRZ (Trichy)", dest: "CJB (Coimbatore)", isIntl: false, type: "ATR-72", sizeReq: "S", isTurboprop: true, needsCatering: false, pax: 72, bags: 65, color: "#a855f7", wave: "DOM" },
+            { airline: "Akasa Air", code: "QP", origin: "BLR (Bengaluru)", dest: "HYD (Hyderabad)", isIntl: false, type: "A320neo", sizeReq: "M", isTurboprop: false, needsCatering: false, pax: 180, bags: 185, color: "#ea580c", wave: "DOM" },
+            { airline: "Alliance Air", code: "9I", origin: "IXM (Madurai)", dest: "IXE (Mangaluru)", isIntl: false, type: "ATR-72", sizeReq: "S", isTurboprop: true, needsCatering: false, pax: 70, bags: 60, color: "#10b981", wave: "DOM" },
+            // Evening Eastbound Wave
+            { airline: "Singapore Airlines", code: "SQ", origin: "SIN (Singapore)", dest: "SIN (Singapore)", isIntl: true, type: "A350-900", sizeReq: "L", isTurboprop: false, needsCatering: true, pax: 300, bags: 580, color: "#fbbf24", wave: "EAST" },
+            { airline: "Air India Express", code: "IX", origin: "SIN (Singapore)", dest: "IXM (Madurai)", isIntl: true, type: "A320neo", sizeReq: "M", isTurboprop: false, needsCatering: false, pax: 180, bags: 290, color: "#f59e0b", wave: "EAST" }
         ];
 
-        // --- MASTER INCIDENT DEFINITIONS ---
+        let flightCounter = 100;
+        let flights = [];
+
+        function generateFlight(offsetMinutes = 0) {
+            flightCounter += 2;
+            let template = AIRLINE_ROUTES[Math.floor(Math.random() * AIRLINE_ROUTES.length)];
+            let inFlightNum = `${template.code} ${flightCounter}`;
+            let outFlightNum = `${template.code} ${flightCounter + 1}`;
+            
+            let arrTime = BASE_TIME + (offsetMinutes * 60);
+            let turnaroundDuration = template.sizeReq === "L" ? 4200 : (template.sizeReq === "M" ? 2700 : 1800);
+            let depTime = arrTime + turnaroundDuration;
+            let needsFueling = template.isIntl ? true : (Math.random() > 0.5);
+
+            return {
+                inId: inFlightNum,
+                outId: outFlightNum,
+                airline: template.airline,
+                type: template.type,
+                sizeReq: template.sizeReq,
+                isTurboprop: template.isTurboprop,
+                needsCatering: template.needsCatering,
+                needsFueling: needsFueling,
+                color: template.color,
+                origin: template.origin,
+                dest: template.dest,
+                isIntl: template.isIntl,
+                inboundPax: template.pax,
+                inboundBags: template.bags,
+                outboundPax: Math.floor(template.pax * (0.9 + Math.random() * 0.1)),
+                outboundBags: Math.floor(template.bags * (0.9 + Math.random() * 0.1)),
+                
+                approachSec: Math.max(BASE_TIME, arrTime - 120),
+                touchdownSec: arrTime,
+                landingRollEndSec: arrTime + 45,
+                taxiInEndSec: arrTime + 180,
+                depSec: depTime,
+
+                stand: null,
+                gate: null,
+                standAssignedTime: null,
+                belts: [],
+                desks: [],
+                isDesksFlushed: false,
+                isArrivalPunched: false,   // Manual punch control
+                isDeparturePunched: false, // Manual punch control
+                state: "SCHEDULED",
+                manualArrStatus: null,
+                manualDepStatus: null,
+                departedAtSec: null,
+                penalizedForGate: false,
+                beltWarned: false,
+                activeIncident: null,
+
+                isOutboundApproved: false,
+                checkinPaused: false,
+                isGateHandedOver: false,
+
+                busBatchBoardedPax: 0,
+                busTransitTimer: 0,
+
+                bagTransitTimer: template.sizeReq === "L" ? 140 : 95,
+                pickupDelayTimer: 25,
+                bagsOffloadedTotal: 0,
+                bagsWaitingInBasement: 0,
+                totalBatches: template.sizeReq === "L" ? 5 : (template.sizeReq === "M" ? 3 : 2),
+                batchesArrived: 0,
+                batchIntervalTimer: 0,
+
+                disembarkPax: 0,
+                checkedInPax: 0,
+                checkedInBags: 0,
+                boardedPax: 0,
+                boardingStarted: false,
+                boardingHeld: false,
+                service: { 
+                    clean: 0, 
+                    fuel: needsFueling ? 0 : 100, 
+                    cater: template.needsCatering ? 0 : 100 
+                }
+            };
+        }
+
+        // Realistic initial wave spacing (allow for quiet periods and vacant stands)
+        flights.push(generateFlight(2));
+        flights.push(generateFlight(6));
+        flights.push(generateFlight(12));
+        flights.push(generateFlight(24));
+        flights.push(generateFlight(36));
+        flights.push(generateFlight(48));
+        flights.push(generateFlight(70));
+
+        // --- INCIDENTS CATALOG ---
         const INCIDENTS_CATALOG = {
             APRON: [
                 { id: "APR-01", name: "Hydraulic Oil Spill on Stand", fixCost: 50, duration: 240, desc: "Stand locked for environmental cleanup." },
-                { id: "APR-03", name: "Jetbridge Motor Stall", fixCost: 60, duration: 300, desc: "Aerobridge stuck. Passengers cannot disembark/board." },
-                { id: "TRN-01", name: "Fuel Hydrant Pressure Drop", fixCost: 40, duration: 200, desc: "Refueling speed reduced by 70%." },
-                { id: "BRD-01", name: "Ground Air Unit (PCA) Failure", fixCost: 70, duration: 280, desc: "Cabin temperature >32°C. Boarding suspended." }
+                { id: "APR-03", name: "Jetbridge Motor Stall", fixCost: 60, duration: 300, desc: "Aerobridge stuck. Switch to Remote Gate to bypass!" },
+                { id: "TRN-01", name: "Fuel Hydrant Pressure Drop", fixCost: 40, duration: 200, desc: "Refueling speed cut by 70%." },
+                { id: "BRD-01", name: "Ground Air Unit (PCA) Failure", fixCost: 70, duration: 280, desc: "Cabin heat >32°C. Boarding suspended." }
+            ],
+            REMOTE: [
+                { id: "BUS-01", name: "Cobus Apron Shuttle Breakdown", fixCost: 40, duration: 180, desc: "One bus stalled on taxiway." },
+                { id: "BUS-02", name: "Airstair Hydraulic Lock", fixCost: 50, duration: 240, desc: "Mobile stairs jammed at door." }
             ],
             CHECKIN: [
-                { id: "CHK-01", name: "Visa / Travel Doc Glitch", fixCost: 30, duration: 180, desc: "Passport chip read failure. Counter locked." },
-                { id: "CHK-02", name: "Excess Luggage Fee Dispute", fixCost: 20, duration: 150, desc: "POS terminal payment error." },
-                { id: "CHK-03", name: "Baggage Tag Printer Jam", fixCost: 15, duration: 90, desc: "Thermal roll jam. Bag tagging halted." },
-                { id: "CHK-07", name: "Overweight Luggage Repack", fixCost: 20, duration: 120, desc: "Passenger repacking suitcase at desk scale." }
-            ],
-            SECURITY: [
-                { id: "SEC-04", name: "ETD Chemical False Alarm", fixCost: 45, duration: 210, desc: "Secondary screening swab required. Lane throttled." },
-                { id: "SEC-05", name: "Sterile Area Trespass Alert", fixCost: 80, duration: 360, desc: "Security halt. CCTV review in progress." },
-                { id: "SEC-06", name: "X-Ray Scanner Motor Trip", fixCost: 40, duration: 180, desc: "Conveyor thermal shutdown. Lane paused." }
+                { id: "CHK-01", name: "Visa / Travel Doc Glitch", fixCost: 30, duration: 180, desc: "Passport chip read failure." },
+                { id: "CHK-03", name: "Baggage Tag Printer Jam", fixCost: 15, duration: 90, desc: "Thermal roll jam." }
             ],
             BAGGAGE: [
                 { id: "BAG-04", name: "Cargo Door Lock Jam", fixCost: 50, duration: 240, desc: "Aft cargo door stuck on aircraft." },
-                { id: "BAG-05", name: "Carousel Drive Belt Jam", fixCost: 40, duration: 180, desc: "Luggage strap tangled in motor roller." },
-                { id: "BAG-06", name: "Ramp Tow-Tug Puncture", fixCost: 35, duration: 160, desc: "Baggage transport cart delayed on taxiway." }
-            ],
-            FLIGHT: [
-                { id: "FLT-01", name: "Missing Passenger (Gate No-Show)", fixCost: 60, duration: 300, desc: "Mandatory cargo offload of passenger's bags." },
-                { id: "BRD-02", name: "Duplicate Seat Assignment", fixCost: 25, duration: 120, desc: "Manifest sync error. Re-seating passenger." },
-                { id: "BRD-03", name: "Unruly Passenger at Gate", fixCost: 50, duration: 240, desc: "Security offload required before boarding resumes." }
+                { id: "BAG-05", name: "Carousel Drive Belt Jam", fixCost: 40, duration: 180, desc: "Luggage strap tangled in motor roller." }
             ]
         };
 
@@ -660,6 +800,7 @@
                 updatePhysics(step);
                 updateIncidents(step);
                 updateHUD();
+                updateTelemetryDOM();
             }
 
             requestAnimationFrame(gameTicker);
@@ -671,6 +812,7 @@
                 rollRandomIncidents();
                 updateDynamicStats();
                 renderFidsBoards();
+                recycleFlightPool();
             }
         }, 1000);
 
@@ -678,7 +820,7 @@
             buildStaticViews();
             renderFidsBoards();
             updateDynamicStats();
-            logEvent("MAA Terminal Control: Air traffic sequencing activated.", "info");
+            logEvent("MAA Airport Operations Center Online. Timetable engine live.", "info");
         });
 
         window.addEventListener('keydown', (e) => {
@@ -688,27 +830,30 @@
             }
         });
 
-        // --- PAUSE SYSTEM ---
         function togglePauseGame() {
             isGamePaused = !isGamePaused;
             document.getElementById('pause-modal').classList.toggle('active', isGamePaused);
             document.getElementById('pause-toggle-btn').classList.toggle('active', isGamePaused);
             document.getElementById('pause-toggle-btn').innerText = isGamePaused ? "▶ RESUME" : "⏸ PAUSE";
-            
-            if (isGamePaused) {
-                logEvent("Simulation paused by operator.", "warn");
-            } else {
-                logEvent("Simulation resumed.", "info");
+        }
+
+        function recycleFlightPool() {
+            let activeCount = flights.filter(f => !f.isDeparturePunched && f.state !== "CANCELLED" && f.state !== "DIVERTED").length;
+            if (activeCount < 7) {
+                let maxArrSec = Math.max(...flights.map(f => f.touchdownSec));
+                let newOffsetMins = Math.max(12, Math.floor((maxArrSec - BASE_TIME) / 60) + 8); // Natural wave lulls
+                flights.push(generateFlight(newOffsetMins));
+                buildStaticViews();
             }
         }
 
-        // --- INCIDENTS ENGINE ---
+        // --- INCIDENT ROLLS ---
         function rollRandomIncidents() {
             AIRPORT.desksData.forEach(d => {
                 if (d.assignedFlightOutId && !d.activeIncident && Math.random() < 0.000062) {
                     let inc = INCIDENTS_CATALOG.CHECKIN[Math.floor(Math.random() * INCIDENTS_CATALOG.CHECKIN.length)];
                     d.activeIncident = { ...inc, remaining: inc.duration };
-                    logEvent(`DESK INCIDENT: Counter ${d.id} [${inc.id}] ${inc.name}. (~${Math.floor(inc.duration/60)}m fix)`, "warn");
+                    logEvent(`DESK FAULT: Counter ${d.id} [${inc.id}] ${inc.name}.`, "warn");
                 }
             });
 
@@ -716,174 +861,90 @@
                 if (!s.activeIncident && Math.random() < 0.000062) {
                     let inc = INCIDENTS_CATALOG.APRON[Math.floor(Math.random() * INCIDENTS_CATALOG.APRON.length)];
                     s.activeIncident = { ...inc, remaining: inc.duration };
-                    logEvent(`APRON INCIDENT: ${s.id} [${inc.id}] ${inc.name}. Operations restricted.`, "err");
+                    logEvent(`STAND FAULT: ${s.id} [${inc.id}] ${inc.name}.`, "err");
                 }
             });
 
-            AIRPORT.belts.forEach(b => {
-                let isFeeding = flights.some(f => f.belts.includes(b.id) && f.state === "ON_STAND");
-                if (isFeeding && !b.activeIncident && Math.random() < 0.000062) {
-                    let inc = INCIDENTS_CATALOG.BAGGAGE[Math.floor(Math.random() * INCIDENTS_CATALOG.BAGGAGE.length)];
-                    b.activeIncident = { ...inc, remaining: inc.duration };
-                    logEvent(`BAGGAGE INCIDENT: Belt ${b.id} [${inc.id}] ${inc.name}. Conveyor halted.`, "err");
-                }
-            });
-
-            AIRPORT.secFloors.forEach(sf => {
-                if (!sf.activeIncident && Math.random() < 0.000062) {
-                    let inc = INCIDENTS_CATALOG.SECURITY[Math.floor(Math.random() * INCIDENTS_CATALOG.SECURITY.length)];
-                    sf.activeIncident = { ...inc, remaining: inc.duration };
-                    logEvent(`SECURITY INCIDENT: ${sf.name} [${inc.id}] ${inc.name}. Screening flow throttled.`, "err");
-                }
-            });
-
-            flights.forEach(f => {
-                if (f.state === "BOARDING" && !f.activeIncident && Math.random() < 0.000062) {
-                    let inc = INCIDENTS_CATALOG.FLIGHT[Math.floor(Math.random() * INCIDENTS_CATALOG.FLIGHT.length)];
-                    f.activeIncident = { ...inc, remaining: inc.duration };
-                    logEvent(`GATE INCIDENT: Flight ${f.outId} [${inc.id}] ${inc.name}. Boarding stalled.`, "warn");
+            AIRPORT.gates.forEach(g => {
+                if (g.isRemote && !g.activeIncident && Math.random() < 0.000062) {
+                    let inc = INCIDENTS_CATALOG.REMOTE[Math.floor(Math.random() * INCIDENTS_CATALOG.REMOTE.length)];
+                    g.activeIncident = { ...inc, remaining: inc.duration };
+                    logEvent(`REMOTE GATE INCIDENT: ${g.id} [${inc.id}] ${inc.name}.`, "err");
                 }
             });
         }
 
         function updateIncidents(step) {
-            AIRPORT.desksData.forEach(d => {
-                if (d.activeIncident) {
-                    d.activeIncident.remaining -= step;
-                    if (d.activeIncident.remaining <= 0) {
-                        logEvent(`RESOLVED: Desk ${d.id} anomaly cleared. Counter operational.`, "info");
-                        d.activeIncident = null;
-                        d.currentPaxTimer = 0;
-                    }
-                }
-            });
-
-            AIRPORT.stands.forEach(s => {
-                if (s.activeIncident) {
-                    s.activeIncident.remaining -= step;
-                    if (s.activeIncident.remaining <= 0) {
-                        logEvent(`RESOLVED: ${s.id} fault repaired. Full operations restored.`, "info");
-                        s.activeIncident = null;
-                    }
-                }
-            });
-
-            AIRPORT.belts.forEach(b => {
-                if (b.activeIncident) {
-                    b.activeIncident.remaining -= step;
-                    if (b.activeIncident.remaining <= 0) {
-                        logEvent(`RESOLVED: Carousel Belt ${b.id} cleared and restarted.`, "info");
-                        b.activeIncident = null;
-                        b.jammed = false;
-                    }
-                }
-            });
-
-            AIRPORT.secFloors.forEach(sf => {
-                if (sf.activeIncident) {
-                    sf.activeIncident.remaining -= step;
-                    if (sf.activeIncident.remaining <= 0) {
-                        logEvent(`RESOLVED: ${sf.name} clearance complete. Normal screening restored.`, "info");
-                        sf.activeIncident = null;
-                    }
-                }
-            });
-
-            flights.forEach(f => {
-                if (f.activeIncident) {
-                    f.activeIncident.remaining -= step;
-                    if (f.activeIncident.remaining <= 0) {
-                        logEvent(`RESOLVED: Gate anomaly cleared for ${f.outId}. Boarding normal.`, "info");
-                        f.activeIncident = null;
-                    }
-                }
-            });
+            AIRPORT.desksData.forEach(d => { if (d.activeIncident) { d.activeIncident.remaining -= step; if (d.activeIncident.remaining <= 0) d.activeIncident = null; } });
+            AIRPORT.stands.forEach(s => { if (s.activeIncident) { s.activeIncident.remaining -= step; if (s.activeIncident.remaining <= 0) s.activeIncident = null; } });
+            AIRPORT.gates.forEach(g => { if (g.activeIncident) { g.activeIncident.remaining -= step; if (g.activeIncident.remaining <= 0) g.activeIncident = null; } });
+            AIRPORT.belts.forEach(b => { if (b.activeIncident) { b.activeIncident.remaining -= step; if (b.activeIncident.remaining <= 0) { b.activeIncident = null; b.jammed = false; } } });
+            flights.forEach(f => { if (f.activeIncident) { f.activeIncident.remaining -= step; if (f.activeIncident.remaining <= 0) f.activeIncident = null; } });
         }
 
         function repairIncident(category, entityId) {
             if (category === 'DESK') {
                 let d = AIRPORT.desksData[entityId - 1];
-                if (d.activeIncident && score >= d.activeIncident.fixCost) {
-                    score -= d.activeIncident.fixCost;
-                    logEvent(`REPAIR CREW: Desk ${d.id} fixed immediately (-${d.activeIncident.fixCost} PTS).`, "info");
-                    d.activeIncident = null;
-                    d.currentPaxTimer = 0;
-                }
+                if (d && d.activeIncident && score >= d.activeIncident.fixCost) { score -= d.activeIncident.fixCost; d.activeIncident = null; }
             } else if (category === 'STAND') {
                 let s = AIRPORT.stands.find(x => x.id === entityId);
-                if (s.activeIncident && score >= s.activeIncident.fixCost) {
-                    score -= s.activeIncident.fixCost;
-                    logEvent(`REPAIR CREW: Stand ${s.id} repaired immediately (-${s.activeIncident.fixCost} PTS).`, "info");
-                    s.activeIncident = null;
-                }
+                if (s && s.activeIncident && score >= s.activeIncident.fixCost) { score -= s.activeIncident.fixCost; s.activeIncident = null; }
+            } else if (category === 'GATE') {
+                let g = AIRPORT.gates.find(x => x.id === entityId);
+                if (g && g.activeIncident && score >= g.activeIncident.fixCost) { score -= g.activeIncident.fixCost; g.activeIncident = null; }
             } else if (category === 'BELT') {
                 let b = AIRPORT.belts.find(x => x.id === entityId);
-                if (b.activeIncident && score >= b.activeIncident.fixCost) {
-                    score -= b.activeIncident.fixCost;
-                    logEvent(`REPAIR CREW: Belt ${b.id} unjammed immediately (-${b.activeIncident.fixCost} PTS).`, "info");
-                    b.activeIncident = null;
-                    b.jammed = false;
-                }
-            } else if (category === 'SECURITY') {
-                let sf = AIRPORT.secFloors.find(x => x.id === entityId);
-                if (sf.activeIncident && score >= sf.activeIncident.fixCost) {
-                    score -= sf.activeIncident.fixCost;
-                    logEvent(`REPAIR CREW: ${sf.name} breach cleared immediately (-${sf.activeIncident.fixCost} PTS).`, "info");
-                    sf.activeIncident = null;
-                }
-            } else if (category === 'FLIGHT') {
-                let f = flights.find(x => x.outId === entityId);
-                if (f.activeIncident && score >= f.activeIncident.fixCost) {
-                    score -= f.activeIncident.fixCost;
-                    logEvent(`GATE AGENT: Fast-track offload complete for ${f.outId} (-${f.activeIncident.fixCost} PTS).`, "info");
-                    f.activeIncident = null;
-                }
+                if (b && b.activeIncident && score >= b.activeIncident.fixCost) { score -= b.activeIncident.fixCost; b.activeIncident = null; b.jammed = false; }
             }
             updateDynamicStats();
         }
 
-        // --- CORE SIMULATION ENGINE WITH INSTANT OFF-LOAD & INDEPENDENT RECLAIM ---
+        // --- CORE PHYSICAL PIPELINE ---
         function updatePhysics(step) {
-            let overcrowdAlert = false;
-            AIRPORT.secFloors.forEach(sf => {
-                let queued = flights.filter(f => f.secFloor === sf.id && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(f.state))
-                                    .reduce((acc, f) => acc + Math.max(0, f.checkedInPax - f.secClearedPax), 0);
-                if (queued >= sf.maxCapacity) overcrowdAlert = true;
-            });
-            document.getElementById('overcrowd-alert').classList.toggle('active', overcrowdAlert);
+            let anyLoadingAwaiting = false;
+            let anyBoardingReady = false;
+            let anyReleaseReady = false;
+            let anyBeltsReadyForFlush = false;
 
+            // Sync Carousels
             AIRPORT.belts.forEach(b => {
                 let flight = flights.find(f => f.belts.includes(b.id) && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(f.state));
                 b.assignedFlightInId = flight ? flight.inId : null;
+                if (b.isCompleted && b.currentBagsOnBelt === 0 && b.assignedFlightInId) {
+                    anyBeltsReadyForFlush = true;
+                }
             });
 
             flights.forEach(f => {
+                if (f.state === "ON_STAND" && f.disembarkPax >= f.inboundPax && f.bagsOffloadedTotal >= f.inboundBags && !f.isOutboundApproved) {
+                    anyLoadingAwaiting = true;
+                }
+                if (f.service.clean >= 100 && !f.boardingStarted && f.checkedInPax > 0 && f.state !== "DEPARTED") {
+                    anyBoardingReady = true;
+                }
+                if (f.isGateHandedOver && f.service.clean >= 100 && f.service.fuel >= 100 && f.service.cater >= 100 && f.state !== "DEPARTED") {
+                    anyReleaseReady = true;
+                }
+
                 if (["DIVERTED", "CANCELLED", "DEPARTED"].includes(f.state)) return;
 
-                // 1. Approach Phase
-                if (simSeconds >= f.approachSec && simSeconds < f.touchdownSec) {
-                    if (f.state === "SCHEDULED") {
-                        f.state = "APPROACHING";
-                        logEvent(`RADAR: Flight ${f.inId} (${f.type}) on ILS Runway 07. Touchdown in ~${Math.floor(f.touchdownSec - simSeconds)}s.`, "info");
+                // 1. Approach
+                if (simSeconds >= f.approachSec && simSeconds < f.touchdownSec && f.state === "SCHEDULED") {
+                    f.state = "APPROACHING";
+                }
+
+                // 2. Touchdown
+                if (simSeconds >= f.touchdownSec && simSeconds < f.landingRollEndSec && (f.state === "APPROACHING" || f.state === "SCHEDULED")) {
+                    f.state = "LANDING";
+                    if (!f.stand && !f.penalizedForGate) {
+                        f.penalizedForGate = true;
+                        score = Math.max(0, score - 100);
+                        logEvent(`PENALTY (-100 PTS): Flight ${f.inId} landed without stand!`, "err");
                     }
                 }
 
-                // 2. Touchdown Phase
-                if (simSeconds >= f.touchdownSec && simSeconds < f.landingRollEndSec) {
-                    if (f.state === "APPROACHING" || f.state === "SCHEDULED") {
-                        f.state = "LANDING";
-                        logEvent(`ATC: Flight ${f.inId} TOUCHDOWN Runway 07.`, "info");
-                        
-                        if (!f.stand && !f.penalizedForGate) {
-                            f.penalizedForGate = true;
-                            score = Math.max(0, score - 100);
-                            logEvent(`PENALTY (-100 PTS): Flight ${f.inId} landed with NO GATE PRE-ASSIGNED!`, "err");
-                        }
-                    }
-                }
-
-                // 3. Taxi-In Phase
-                if (simSeconds >= f.landingRollEndSec && !["ON_STAND", "SERVICING", "CLEARED_FOR_BOARDING", "BOARDING", "READY"].includes(f.state)) {
+                // 3. Taxi-In
+                if (simSeconds >= f.landingRollEndSec && !["ON_STAND", "SERVICING", "CLEARED_FOR_BOARDING", "BOARDING", "READY_FOR_HANDOVER", "READY"].includes(f.state)) {
                     if (f.stand) {
                         let standObj = AIRPORT.stands.find(s => s.id === f.stand);
                         if (standObj && standObj.activeIncident && standObj.activeIncident.id === "APR-01") {
@@ -893,238 +954,178 @@
                         } else {
                             f.state = "ON_STAND";
                             score += 50;
-                            logEvent(`MARSHALLER: Flight ${f.inId} parked on blocks at ${f.stand}.`, "info");
                         }
                     } else {
                         f.state = "HOLDING_FOR_STAND";
-                        if (!f.penalizedForGate) {
-                            f.penalizedForGate = true;
-                            score = Math.max(0, score - 100);
-                        }
                     }
                 }
 
-                // 4. Inbound Phase: Disembarkation & Strict Hard-Capped Baggage Induction
+                // 4. Inbound Deplaning & Baggage Induction
                 if (f.state === "ON_STAND" || f.isOutboundApproved) {
                     let standObj = AIRPORT.stands.find(s => s.id === f.stand);
-                    let bridgeStalled = standObj && standObj.activeIncident && standObj.activeIncident.id === "APR-03";
+                    let bridgeStalled = standObj && standObj.activeIncident && standObj.activeIncident.id === "APR-03" && !standObj.isRemote;
                     
                     if (!bridgeStalled && f.state === "ON_STAND") {
-                        f.disembarkPax = Math.min(f.inboundPax, f.disembarkPax + (1.2 * step));
+                        f.disembarkPax = Math.min(f.inboundPax, f.disembarkPax + (0.85 * step));
                     }
 
-                    if (f.belts.length === 0 && !f.isOutboundApproved) {
-                        score = Math.max(0, score - (0.1 * step));
-                        if (!f.beltWarned) {
-                            f.beltWarned = true;
-                            logEvent(`BAGGAGE DELAY PENALTY (-50 PTS): Flight ${f.inId} unloading with NO BELT assigned!`, "err");
-                            score = Math.max(0, score - 50);
-                        }
-                    } else if (f.belts.length > 0) {
-                        let cargoDoorJam = f.activeIncident && f.activeIncident.id === "BAG-04";
+                    if (f.belts.length > 0) {
+                        if (f.bagTransitTimer > 0) {
+                            f.bagTransitTimer -= step;
+                        } else {
+                            f.batchIntervalTimer -= step;
+                            if (f.batchesArrived < f.totalBatches && f.batchIntervalTimer <= 0) {
+                                f.batchesArrived++;
+                                f.batchIntervalTimer = 45;
+                                let batchSize = Math.floor(f.inboundBags / f.totalBatches);
+                                if (f.batchesArrived === f.totalBatches) batchSize = f.inboundBags - f.bagsOffloadedTotal;
+                                f.bagsOffloadedTotal += batchSize;
+                                f.bagsWaitingInBasement += batchSize;
+                            }
 
-                        if (!cargoDoorJam) {
-                            if (f.bagTransitTimer > 0) {
-                                f.bagTransitTimer -= step;
-                            } else {
-                                // Offload Batches into Basement Queue
-                                f.batchIntervalTimer -= step;
-                                if (f.batchesArrived < f.totalBatches && f.batchIntervalTimer <= 0) {
-                                    f.batchesArrived++;
-                                    f.batchIntervalTimer = 35;
-                                    
-                                    let bagsInThisBatch = Math.floor(f.inboundBags / f.totalBatches);
-                                    if (f.batchesArrived === f.totalBatches) {
-                                        bagsInThisBatch = f.inboundBags - f.bagsOffloadedTotal;
+                            // Parallel dual-belt feed
+                            if (f.bagsWaitingInBasement > 0) {
+                                let portionPerBelt = f.bagsWaitingInBasement / f.belts.length;
+                                f.belts.forEach(bId => {
+                                    let b = AIRPORT.belts.find(x => x.id === bId);
+                                    if (b && !b.activeIncident && b.currentBagsOnBelt < b.maxCapacity) {
+                                        let space = b.maxCapacity - b.currentBagsOnBelt;
+                                        let amount = Math.min(portionPerBelt, space, 2.0 * step);
+                                        b.firstBagArrived = true;
+                                        b.totalInductedBags += amount;
+                                        b.currentBagsOnBelt += amount;
+                                        f.bagsWaitingInBasement -= amount;
                                     }
-                                    f.bagsOffloadedTotal += bagsInThisBatch;
-                                    f.bagsWaitingInBasement += bagsInThisBatch;
-                                    logEvent(`BAGGAGE BASEMENT: Tug Cart (Batch ${f.batchesArrived}/${f.totalBatches}) arrived at transfer station for ${f.inId}.`, "info");
-                                }
+                                });
+                            }
 
-                                // Feed bags from basement onto belt ONLY up to Max Capacity
-                                if (f.bagsWaitingInBasement > 0) {
-                                    f.belts.forEach(bId => {
-                                        let b = AIRPORT.belts.find(x => x.id === bId);
-                                        if (b && !b.activeIncident && b.currentBagsOnBelt < b.maxCapacity) {
-                                            let availableSpace = b.maxCapacity - b.currentBagsOnBelt;
-                                            let feedAmount = Math.min(f.bagsWaitingInBasement, availableSpace, 4.0 * step);
-                                            
-                                            b.firstBagArrived = true;
-                                            b.totalInductedBags += feedAmount;
-                                            b.currentBagsOnBelt += feedAmount;
-                                            f.bagsWaitingInBasement -= feedAmount;
+                            // Passenger Pickup
+                            if (f.batchesArrived > 0) {
+                                f.belts.forEach(bId => {
+                                    let b = AIRPORT.belts.find(x => x.id === bId);
+                                    let isHalted = b.manualStatus === "SEE AGENT" || b.manualStatus === "NO INFO";
+                                    if (b && b.currentBagsOnBelt > 0 && !b.jammed && !b.activeIncident && !isHalted) {
+                                        let speed = (f.batchesArrived >= f.totalBatches) ? 0.65 * step : 0.35 * step;
+                                        b.currentBagsOnBelt = Math.max(0, b.currentBagsOnBelt - speed);
+                                        if (b.currentBagsOnBelt === 0 && f.bagsOffloadedTotal >= f.inboundBags && f.bagsWaitingInBasement <= 0) {
+                                            b.isCompleted = true;
                                         }
-                                    });
-                                }
-
-                                // Passengers pick up bags from carousel (Instant pickup if all batches delivered)
-                                if (f.batchesArrived > 0) {
-                                    let allBatchesIn = f.batchesArrived >= f.totalBatches;
-                                    if (!allBatchesIn && f.pickupDelayTimer > 0) {
-                                        f.pickupDelayTimer -= step;
-                                    } else {
-                                        // Pickup runs normally & completely independent of apron turnaround status
-                                        f.belts.forEach(bId => {
-                                            let b = AIRPORT.belts.find(x => x.id === bId);
-                                            if (b && b.currentBagsOnBelt > 0 && !b.jammed && !b.activeIncident) {
-                                                let pickupSpeed = allBatchesIn ? 0.95 * step : 0.65 * step;
-                                                b.currentBagsOnBelt = Math.max(0, b.currentBagsOnBelt - pickupSpeed);
-                                                if (b.currentBagsOnBelt === 0 && f.bagsOffloadedTotal >= f.inboundBags && f.bagsWaitingInBasement <= 0) {
-                                                    b.isCompleted = true;
-                                                }
-                                            }
-                                        });
                                     }
-                                }
+                                });
                             }
                         }
                     }
                 }
 
-                // 5. Outbound Phase: Parallel Servicing with Cleaning Priority
+                // 5. Outbound Servicing
                 if (f.isOutboundApproved && f.state === "ON_STAND") {
                     f.state = "SERVICING";
-                    logEvent(`OPERATOR APPROVAL: Ground loading and servicing initiated for ${f.outId}.`, "info");
                 }
 
                 if (f.state === "SERVICING") {
-                    let standObj = AIRPORT.stands.find(s => s.id === f.stand);
-                    let fuelPenalty = (standObj && standObj.activeIncident && standObj.activeIncident.id === "TRN-01") ? 0.3 : 1.0;
+                    f.service.clean = Math.min(100, f.service.clean + (0.075 * step));
+                    if (f.needsFueling) {
+                        f.service.fuel = Math.min(100, f.service.fuel + (0.055 * step));
+                    }
+                    if (f.needsCatering) {
+                        f.service.cater = Math.min(100, f.service.cater + (0.065 * step));
+                    }
 
-                    // Cleaning Progress (Takes top priority)
-                    f.service.clean = Math.min(100, f.service.clean + (0.12 * step));
-                    f.service.fuel = Math.min(100, f.service.fuel + (0.08 * fuelPenalty * step));
-                    f.service.cater = Math.min(100, f.service.cater + (0.09 * step));
-
-                    // Cleaning Completion unlocks Boarding Ready State
                     if (f.service.clean >= 100 && f.state !== "CLEARED_FOR_BOARDING" && !f.boardingStarted) {
                         f.state = "CLEARED_FOR_BOARDING";
-                        logEvent(`READY TO BOARD: Cabin cleaning complete for ${f.outId}. Gate ready to open!`, "info");
                     }
                 }
 
-                // 6. Check-in Flow with Individual Flight Pause
-                if (!AIRPORT.globalCheckinPaused && !f.checkinPaused && f.desks.length > 0) {
-                    let activeOperationalDesks = f.desks.filter(dNum => {
-                        let d = AIRPORT.desksData[dNum - 1];
-                        return !d.activeIncident;
-                    }).length;
+                // 6. Check-in Flow
+                if (!AIRPORT.globalCheckinPaused && !f.checkinPaused && f.desks.length > 0 && !f.isDesksFlushed) {
+                    let activeDeskCount = f.desks.map(dNum => AIRPORT.desksData[dNum - 1]).filter(d => !d.activeIncident).length;
+                    let effectiveRate = activeDeskCount * (f.isIntl ? 0.015 : 0.030);
 
-                    let paxRate = activeOperationalDesks * (f.isIntl ? 0.02 : 0.04) * step;
-                    f.checkedInPax = Math.min(f.outboundPax, f.checkedInPax + paxRate);
+                    f.checkedInPax = Math.min(f.outboundPax, f.checkedInPax + (effectiveRate * step));
                     f.checkedInBags = Math.min(f.outboundBags, (f.checkedInPax / f.outboundPax) * f.outboundBags);
+                }
 
-                    f.desks.forEach(dNum => {
-                        let desk = AIRPORT.desksData[dNum - 1];
-                        desk.assignedFlightOutId = f.outId;
-                        if (!desk.activeIncident) {
-                            desk.currentPaxTimer += step;
-                            if (desk.currentPaxTimer > 240) desk.currentPaxTimer = 0;
-                        }
-                    });
-                } else if (f.checkinPaused) {
-                    f.desks.forEach(dNum => {
-                        let desk = AIRPORT.desksData[dNum - 1];
+                f.desks.forEach(dNum => {
+                    let desk = AIRPORT.desksData[dNum - 1];
+                    desk.assignedFlightOutId = f.outId;
+                    if (!desk.activeIncident && !f.checkinPaused && !AIRPORT.globalCheckinPaused && f.checkedInPax < f.outboundPax) {
+                        desk.currentPaxTimer += step;
+                        if (desk.currentPaxTimer >= 60) desk.currentPaxTimer = 0;
+                    } else {
                         desk.currentPaxTimer = 0;
-                    });
-                }
+                    }
+                });
 
-                // 7. Security Flow (Feeds into Gate Lounge)
-                if (f.checkedInPax > f.secClearedPax) {
-                    let sec = AIRPORT.secFloors.find(s => s.id === f.secFloor);
-                    let flowMultiplier = sec.activeIncident ? (sec.activeIncident.id === "SEC-05" ? 0 : 0.4) : 1.0;
-                    let processed = Math.min(f.checkedInPax - f.secClearedPax, sec.baseRateSec * flowMultiplier * step);
-                    f.secClearedPax += processed;
-                }
-
-                // 8. Boarding Execution (Strict Cleaning Interlock)
-                if (f.boardingStarted && !f.boardingHeld) {
+                // 7. Boarding
+                if (f.boardingStarted && !f.boardingHeld && f.service.clean >= 100) {
+                    let gateObj = AIRPORT.gates.find(g => g.id === f.gate);
                     let standObj = AIRPORT.stands.find(s => s.id === f.stand);
-                    let cabinHeatHalt = standObj && standObj.activeIncident && standObj.activeIncident.id === "BRD-01";
-                    let gateIncidentHalt = f.activeIncident !== null;
+                    let isRemoteBoarding = (gateObj && gateObj.isRemote) || (standObj && standObj.isRemote);
 
-                    if (!cabinHeatHalt && !gateIncidentHalt && f.service.clean >= 100) {
-                        let paxWaitingAtGate = f.secClearedPax - f.boardedPax;
-                        let readyToBoard = Math.min(paxWaitingAtGate, 0.4 * step);
-                        if (readyToBoard > 0) f.boardedPax += readyToBoard;
+                    if (isRemoteBoarding) {
+                        let assignedBuses = gateObj && gateObj.isRemote ? gateObj.buses : 1;
+                        if (gateObj && gateObj.activeIncident) assignedBuses = Math.max(0, assignedBuses - 1);
 
-                        if (f.boardedPax >= f.outboundPax) {
-                            f.state = "READY";
+                        if (assignedBuses > 0) {
+                            f.busTransitTimer -= step;
+                            if (f.busTransitTimer <= 0) {
+                                f.busTransitTimer = 50 / assignedBuses;
+                                let unboardedWaiting = f.checkedInPax - f.boardedPax;
+                                let batchCapacity = 40 * assignedBuses;
+                                f.boardedPax += Math.min(unboardedWaiting, batchCapacity);
+                            }
                         }
+                    } else {
+                        let unboarded = f.checkedInPax - f.boardedPax;
+                        f.boardedPax += Math.min(unboarded, 0.28 * step);
+                    }
+
+                    if (f.boardedPax >= f.outboundPax) {
+                        f.state = "READY_FOR_HANDOVER";
                     }
                 }
             });
+
+            document.getElementById('btn-master-loading').className = `annun-btn ${anyLoadingAwaiting ? 'active-warn' : ''}`;
+            document.getElementById('btn-master-boarding').className = `annun-btn ${anyBoardingReady ? 'active-boarding' : ''}`;
+            document.getElementById('btn-master-release').className = `annun-btn ${anyReleaseReady ? 'active-success' : ''}`;
+            document.getElementById('btn-master-belts').className = `annun-btn ${anyBeltsReadyForFlush ? 'active-belts' : ''}`;
         }
 
         // --- DOM BUILDER ---
         function buildStaticViews() {
-            // Stands Table
-            document.getElementById('stands-alloc-tbody').innerHTML = flights.map(f => `
-                <tr id="stand-row-${f.inId}">
-                    <td>
-                        <span class="flight-pill" style="background:${f.color};">${f.inId} / ${f.outId}</span><br>
-                        <small style="color:var(--text-muted)">${f.origin} to ${f.dest}</small>
-                    </td>
-                    <td>${f.type} (${f.sizeReq})</td>
-                    <td><strong style="color:${f.color};">${f.inboundPax} PAX</strong><br><small style="color:var(--text-muted);">${f.inboundBags} Inbound Bags</small></td>
-                    <td><strong style="color:var(--fids-yellow);">${formatClock(f.touchdownSec)}</strong></td>
-                    <td><span id="flight-phase-${f.inId}" style="font-weight:bold; color:${f.color};">${f.state}</span></td>
-                    <td>
-                        <select onchange="setStand('${f.inId}', this.value)" id="select-stand-${f.inId}">
-                            <option value="">-- Assign Stand --</option>
-                            ${AIRPORT.stands.map(s => `<option value="${s.id}">${s.id} (${s.size})</option>`).join('')}
-                        </select>
-                    </td>
-                    <td>
-                        <div>
-                            ${AIRPORT.belts.map(b => `
-                                <button type="button" class="belt-toggle" id="belt-btn-${f.inId}-${b.id}" onclick="toggleBeltAssignment('${f.inId}', ${b.id})">
-                                    Belt ${b.id}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display:flex; gap:4px;">
-                            <button class="btn btn-warn" onclick="requestFlightAction('${f.inId}', 'DIVERT')">Divert</button>
-                            <button class="btn btn-danger" onclick="requestFlightAction('${f.inId}', 'CANCEL_INBOUND')">Cancel In</button>
-                            <button class="btn btn-danger" onclick="requestFlightAction('${f.outId}', 'CANCEL_OUTBOUND')">Cancel Out</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            renderStandsTable();
 
-            // Stands Cards
+            let activeOutbound = flights.filter(f => !f.isDeparturePunched && f.state !== "CANCELLED" && !f.isDesksFlushed);
+            let brushSelect = document.getElementById('active-flight-brush');
+            brushSelect.innerHTML = activeOutbound.map(f => `<option value="${f.outId}">${f.outId} (${f.dest})</option>`).join('');
+
+            // TOP-DECK STANDS CARDS
             document.getElementById('stands-card-grid').innerHTML = AIRPORT.stands.map(s => `
                 <div class="card" id="stand-card-${s.id.replace(' ', '-')}">
                     <div class="card-title">
-                        <span>${s.id} [${s.size}]</span>
+                        <span>${s.id} [${s.size}] ${s.isRemote ? '🚌 REMOTE' : '🛬 CONTACT'}</span>
                         <span style="font-size:0.75rem;" id="stand-flight-${s.id.replace(' ', '-')}">VACANT</span>
                     </div>
                     <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">${s.label}</div>
-                    <div style="font-size:0.78rem;" id="stand-details-${s.id.replace(' ', '-')}">Stand clear. Ready for approach.</div>
+                    <div style="font-size:0.78rem;" id="stand-details-${s.id.replace(' ', '-')}">Stand ready.</div>
+                    <div id="stand-alert-slot-${s.id.replace(' ', '-')}"></div>
                     <div id="stand-turnaround-breakdown-${s.id.replace(' ', '-')}" style="display:none;" class="turnaround-task-group">
                         <div class="turnaround-task-row">
-                            <div class="turnaround-task-header">
-                                <span style="color:#f43f5e;">★ CABIN CLEANING (PRIORITY)</span>
-                                <span id="clean-val-${s.id.replace(' ', '-')}">0%</span>
-                            </div>
+                            <div class="turnaround-task-header"><span style="color:#f43f5e;">★ CABIN CLEANING (PRIORITY)</span><span id="clean-val-${s.id.replace(' ', '-')}">0%</span></div>
                             <div class="progress-track"><div class="progress-fill" id="clean-bar-${s.id.replace(' ', '-')}" style="background:#f43f5e;"></div></div>
                         </div>
-                        <div class="turnaround-task-row">
-                            <div class="turnaround-task-header">
-                                <span>REFUELING</span>
-                                <span id="fuel-val-${s.id.replace(' ', '-')}">0%</span>
-                            </div>
+                        <div class="turnaround-task-row" id="fuel-task-row-${s.id.replace(' ', '-')}">
+                            <div class="turnaround-task-header"><span>REFUELING</span><span id="fuel-val-${s.id.replace(' ', '-')}">0%</span></div>
                             <div class="progress-track"><div class="progress-fill" id="fuel-bar-${s.id.replace(' ', '-')}" style="background:#38bdf8;"></div></div>
                         </div>
-                        <div class="turnaround-task-row">
-                            <div class="turnaround-task-header">
-                                <span>CATERING</span>
-                                <span id="cater-val-${s.id.replace(' ', '-')}">0%</span>
-                            </div>
+                        <div class="turnaround-task-row" id="cater-task-row-${s.id.replace(' ', '-')}">
+                            <div class="turnaround-task-header"><span>CATERING</span><span id="cater-val-${s.id.replace(' ', '-')}">0%</span></div>
                             <div class="progress-track"><div class="progress-fill" id="cater-bar-${s.id.replace(' ', '-')}" style="background:#f59e0b;"></div></div>
+                        </div>
+                        <div style="font-size:0.72rem; margin-top:4px; display:flex; justify-content:space-between;">
+                            <span>Gate Boarding Handover:</span>
+                            <strong id="handover-status-label-${s.id.replace(' ', '-')}" style="color:var(--text-muted);">PENDING</strong>
                         </div>
                     </div>
                     <div id="stand-action-slot-${s.id.replace(' ', '-')}"></div>
@@ -1132,113 +1133,138 @@
                 </div>
             `).join('');
 
-            // Check-in Desks Cards with Built-in Dropdown Allocator
-            document.getElementById('checkin-desks-grid').innerHTML = AIRPORT.desksData.map(d => `
-                <div class="card" id="desk-card-${d.id}" style="padding:8px; background:#0a0f1d;">
-                    <div style="font-size:0.75rem; font-weight:bold; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                        <span>Desk ${d.id}</span>
-                        <span id="desk-status-pill-${d.id}" style="color:var(--text-muted); font-size:0.7rem;">IDLE</span>
-                    </div>
-                    <div style="margin-bottom:4px;">
-                        <select id="desk-select-${d.id}" onchange="handleDeskDropdownChange(${d.id}, this.value)" style="width:100%; font-size:0.75rem; padding:3px;">
-                            <option value="">-- Unassigned (Idle) --</option>
-                            ${flights.map(f => `<option value="${f.outId}">${f.outId} (${f.dest})</option>`).join('')}
-                        </select>
-                    </div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                        <span id="desk-timer-${d.id}">Timer: 0s</span>
-                        <button class="btn btn-muted" style="padding:1px 4px; font-size:0.65rem;" onclick="clearDeskAssignment(${d.id})">Clear</button>
-                    </div>
-                    <div id="desk-incident-${d.id}"></div>
-                </div>
-            `).join('');
+            renderCheckinMatrix();
+            renderCheckinTable();
+            renderSplitBoardingViews();
+            renderBaggageHubView();
+        }
 
-            // Check-in Table
-            document.getElementById('checkin-table-tbody').innerHTML = flights.map(f => `
-                <tr id="checkin-row-${f.outId}">
-                    <td>
-                        <span class="flight-pill" style="background:${f.color};">${f.outId}</span><br>
-                        <small style="color:var(--text-muted);">${f.dest}</small>
-                    </td>
-                    <td>
-                        <strong style="color:var(--fids-yellow);">${formatClock(f.depSec)}</strong>
-                        <div style="font-size:0.72rem; color:var(--text-muted);" id="etd-countdown-${f.outId}">--</div>
-                    </td>
-                    <td>${f.outboundPax} PAX / ${f.outboundBags} Bags</td>
-                    <td><strong style="color:${f.color};" id="flow-rate-${f.outId}">0.0</strong> PAX/min</td>
-                    <td id="desks-assigned-${f.outId}"><span style="color:var(--danger)">None</span></td>
-                    <td>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                            <button class="btn btn-warn" id="flight-checkin-pause-btn-${f.outId}" onclick="toggleFlightCheckinPause('${f.outId}')">
-                                Pause
-                            </button>
-                            <button class="btn btn-muted" id="flight-desk-flush-btn-${f.outId}" onclick="flushFlightDesks('${f.outId}')">
-                                Flush Desks
-                            </button>
+        // --- CHECK-IN MATRIX ---
+        function renderCheckinMatrix() {
+            document.getElementById('checkin-matrix-grid').innerHTML = AIRPORT.desksData.map(d => {
+                let f = flights.find(x => x.outId === d.assignedFlightOutId);
+                let isAssigned = !!d.assignedFlightOutId;
+                let isFaulted = !!d.activeIncident;
+
+                return `
+                    <div class="desk-cell ${isAssigned ? 'occupied' : ''} ${isFaulted ? 'faulted' : ''}" 
+                         id="desk-cell-${d.id}" 
+                         onclick="toggleDeskAssignment(${d.id})"
+                         style="${isAssigned && f ? `border-color: ${f.color};` : ''}">
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.75rem;">
+                            <span>Desk ${d.id}</span>
+                            <span id="desk-pill-${d.id}" style="font-size:0.68rem; color:${isAssigned ? 'var(--success)' : 'var(--text-muted)'};">
+                                ${isFaulted ? 'FAULT' : (isAssigned ? 'ACTIVE' : 'IDLE')}
+                            </span>
                         </div>
-                    </td>
-                    <td style="width:170px;">
-                        <div style="font-size:0.72rem;" id="pax-checkin-text-${f.outId}">0/${f.outboundPax} P</div>
-                        <div class="progress-track"><div class="progress-fill" id="pax-checkin-bar-${f.outId}" style="background:${f.color};"></div></div>
-                        <div id="checkin-complete-badge-${f.outId}" style="font-size:0.7rem; font-weight:bold; margin-top:2px;"></div>
-                    </td>
-                </tr>
-            `).join('');
-
-            // Security Floors Grid
-            document.getElementById('security-floors-grid').innerHTML = AIRPORT.secFloors.map(sf => `
-                <div class="card" id="sec-card-${sf.id}">
-                    <div class="card-title">
-                        <span>${sf.name}</span>
-                        <span style="font-size:0.75rem; color:var(--accent);">Limit: ${sf.maxCapacity} PAX</span>
-                    </div>
-                    <div style="font-size:0.8rem; display:flex; flex-direction:column; gap:6px;">
-                        <div>Queued: <strong style="font-size:1.1rem;" id="sec-queue-${sf.id}">0</strong> / ${sf.maxCapacity}</div>
-                        <div class="progress-track"><div class="progress-fill" id="sec-bar-${sf.id}"></div></div>
-                        <div>Cleared to Airside Lounge: <strong id="sec-cleared-${sf.id}">0</strong> PAX</div>
-                    </div>
-                    <div id="sec-incident-${sf.id}"></div>
-                </div>
-            `).join('');
-
-            // Boarding Gates Cards (Lounge Telemetry & Cleaning Interlock)
-            document.getElementById('boarding-gates-grid').innerHTML = flights.map(f => `
-                <div class="card" id="boarding-card-${f.outId}">
-                    <div class="card-title">
-                        <span><span class="flight-pill" style="background:${f.color};">${f.outId}</span> [Gate: <span id="gate-stand-${f.outId}">Unset</span>]</span>
-                        <span style="font-size:0.75rem; color:${f.color};" id="boarding-stage-${f.outId}">${f.state}</span>
-                    </div>
-                    <div style="font-size:0.78rem; display:flex; flex-direction:column; gap:4px;">
-                        <div>Destination: <strong>${f.dest}</strong> | ETD: <strong style="color:var(--fids-yellow);">${formatClock(f.depSec)}</strong></div>
-                        <div style="background:#0a0f1d; padding:6px; border-radius:4px; margin:4px 0; border:1px solid var(--border);">
-                            <div>Pax Waiting at Gate Lounge: <strong style="color:var(--accent);" id="gate-lounge-pax-${f.outId}">0</strong> / ${f.outboundPax}</div>
-                            <div>Cabin Cleaning Status: <strong id="cleaning-status-${f.outId}" style="color:#f43f5e;">Cleaning in Progress (0%)</strong></div>
+                        <div style="font-size:0.72rem; font-weight:bold; color:${f ? f.color : 'var(--text-muted)'};" id="desk-flight-label-${d.id}">
+                            ${f ? f.outId : 'Available'}
                         </div>
-                        <div>Boarded Passengers: <strong id="boarded-pax-${f.outId}">0 / ${f.outboundPax}</strong></div>
-                        <div class="progress-track"><div class="progress-fill" id="boarding-bar-${f.outId}" style="background:${f.color};"></div></div>
-                        <div style="display:flex; gap:6px; margin-top:8px;">
-                            <button class="btn btn-warn" id="start-boarding-btn-${f.outId}" onclick="startBoardingManual('${f.outId}')">
-                                START BOARDING
-                            </button>
-                            <button class="btn" id="hold-boarding-btn-${f.outId}" onclick="toggleBoardingHold('${f.outId}')">
-                                HOLD
-                            </button>
-                            <button class="btn btn-success" id="dispatch-btn-${f.outId}" disabled onclick="dispatchFlight('${f.outId}')">
-                                PUSHBACK / HANDOVER
-                            </button>
+                        <div style="font-size:0.68rem; color:var(--text-muted);" id="desk-sub-label-${d.id}">
+                            ${f ? `${f.dest.split(' ')[0]}` : 'Click to toggle'}
                         </div>
-                        <div id="gate-fault-slot-${f.outId}" style="margin-top:4px;"></div>
-                        <div id="gate-incident-${f.outId}"></div>
+                        <div style="font-size:0.65rem; color:var(--accent); margin-top:2px;" id="desk-timer-${d.id}">
+                            ${isAssigned ? 'Handling: 0s' : '--'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleDeskAssignment(deskId) {
+            let d = AIRPORT.desksData[deskId - 1];
+            let activeBrushFlightId = document.getElementById('active-flight-brush').value;
+            let targetFlight = flights.find(f => f.outId === activeBrushFlightId);
+
+            if (!targetFlight) {
+                alert("Please select an active departing flight in the top dropdown first!");
+                return;
+            }
+
+            if (d.assignedFlightOutId === targetFlight.outId) {
+                d.assignedFlightOutId = null;
+                d.currentPaxTimer = 0;
+                targetFlight.desks = targetFlight.desks.filter(id => id !== deskId);
+                logEvent(`Counter ${deskId} released to Idle.`, "info");
+            } else {
+                if (d.assignedFlightOutId) {
+                    let oldF = flights.find(f => f.outId === d.assignedFlightOutId);
+                    if (oldF) oldF.desks = oldF.desks.filter(id => id !== deskId);
+                }
+                d.assignedFlightOutId = targetFlight.outId;
+                if (!targetFlight.desks.includes(deskId)) targetFlight.desks.push(deskId);
+                targetFlight.desks.sort((a,b) => a-b);
+                logEvent(`Counter ${deskId} allocated to ${targetFlight.outId}.`, "info");
+            }
+
+            renderCheckinMatrix();
+            renderCheckinTable();
+            updateDynamicStats();
+        }
+
+        function assignBrushAuto(count) {
+            let activeBrushFlightId = document.getElementById('active-flight-brush').value;
+            let targetFlight = flights.find(f => f.outId === activeBrushFlightId);
+            if (!targetFlight) return;
+
+            let idleDesks = AIRPORT.desksData.filter(d => !d.assignedFlightOutId && !d.activeIncident);
+            if (idleDesks.length < count) {
+                alert(`⚠️ Not enough idle desks! Requested ${count}, only ${idleDesks.length} available.`);
+                return;
+            }
+
+            for (let i = 0; i < count; i++) {
+                let d = idleDesks[i];
+                d.assignedFlightOutId = targetFlight.outId;
+                if (!targetFlight.desks.includes(d.id)) targetFlight.desks.push(d.id);
+            }
+            targetFlight.desks.sort((a,b) => a-b);
+            logEvent(`BULK ALLOCATION: Assigned ${count} counters to ${targetFlight.outId}.`, "info");
+            renderCheckinMatrix();
+            renderCheckinTable();
+            updateDynamicStats();
+        }
+
+        // --- BAGGAGE RECLAIM RMS ALLOCATION HUB ---
+        function renderBaggageHubView() {
+            let incomingFlights = flights.filter(f => !f.isOutboundApproved && !f.isArrivalPunched && f.state !== "CANCELLED");
+
+            document.getElementById('baggage-dock-strip').innerHTML = incomingFlights.length ? incomingFlights.map(f => `
+                <div class="baggage-dock-card" style="border-left: 3px solid ${f.color};">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                        <span style="color:${f.color};">${f.inId}</span>
+                        <span>${f.origin}</span>
+                    </div>
+                    <div style="color:var(--text-muted);">${f.inboundBags} Bags | ${f.sizeReq === 'L' ? 'Widebody' : 'Narrowbody'}</div>
+                    <div style="color:var(--fids-yellow);">Touchdown: ${formatClock(f.touchdownSec)}</div>
+                    <div style="display:flex; gap:4px; margin-top:4px;">
+                        <button class="btn btn-success" style="padding:2px 6px; font-size:0.68rem; flex:1;" onclick="quickAssignBelt('${f.inId}', 1)">
+                            ⚡ Auto-Assign
+                        </button>
+                        ${f.inboundBags > 300 ? `
+                            <button class="btn btn-warn" style="padding:2px 6px; font-size:0.68rem; flex:1;" onclick="quickAssignBelt('${f.inId}', 2)">
+                                ⚡ Split 2 Belts
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
-            `).join('');
+            `).join('') : `<span style="font-size:0.75rem; color:var(--text-muted); padding:8px;">No incoming flights currently in queue.</span>`;
 
-            // Baggage Belts Cards with Overflow Backlog Telemetry
             document.getElementById('baggage-belts-grid').innerHTML = AIRPORT.belts.map(b => `
                 <div class="card" id="belt-card-${b.id}">
                     <div class="card-title">
                         <span>Reclaim Carousel ${b.id}</span>
                         <span style="font-size:0.75rem;" id="belt-telemetry-status-${b.id}">IDLE</span>
+                    </div>
+
+                    <div style="margin-bottom:8px; background:#030712; padding:6px; border-radius:4px; border:1px solid var(--border);">
+                        <label style="font-size:0.72rem; color:var(--accent); font-weight:bold; display:block; margin-bottom:3px;">
+                            Manual Flight Selector:
+                        </label>
+                        <select id="belt-assign-select-${b.id}" onchange="handleBeltDropdownChange(${b.id}, this.value)" style="width:100%; font-size:0.75rem;">
+                            <option value="">-- Available (Click to Assign) --</option>
+                            ${incomingFlights.map(f => `<option value="${f.inId}" ${f.belts.includes(b.id) ? 'selected' : ''}>${f.inId} (${f.origin} - ${f.inboundBags} Bags)</option>`).join('')}
+                        </select>
                     </div>
 
                     <div class="carousel-pax-board">
@@ -1266,20 +1292,14 @@
                             <span>Active Bags on Belt (Max ${b.maxCapacity}):</span>
                             <strong id="belt-active-bags-${b.id}">0 / ${b.maxCapacity}</strong>
                         </div>
-                        <div class="progress-track">
-                            <div class="progress-fill" id="belt-load-bar-${b.id}"></div>
-                        </div>
+                        <div class="progress-track"><div class="progress-fill" id="belt-load-bar-${b.id}"></div></div>
                         <div style="display:flex; justify-content:space-between; margin-top:4px;">
-                            <span>Held in Basement/Tug Backlog:</span>
+                            <span>Held in Basement Buffer:</span>
                             <strong id="belt-backlog-bags-${b.id}" style="color:var(--warning);">0 Bags</strong>
                         </div>
                         <div style="display:flex; justify-content:space-between;">
                             <span>Total Delivered so far:</span>
                             <strong id="belt-inducted-bags-${b.id}">0 Bags</strong>
-                        </div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <span>Next Batch ETA:</span>
-                            <strong id="belt-batch-countdown-${b.id}" style="color:var(--accent);">--</strong>
                         </div>
                     </div>
 
@@ -1289,21 +1309,343 @@
             `).join('');
         }
 
-        // --- DYNAMIC LIVE UPDATER ---
+        function quickAssignBelt(flightInId, beltCount) {
+            let flight = flights.find(f => f.inId === flightInId);
+            if (!flight) return;
+
+            let idleBelts = AIRPORT.belts.filter(b => !b.assignedFlightInId && !b.firstBagArrived);
+            if (idleBelts.length < beltCount) {
+                alert(`⚠️ Not enough idle carousels! Requested ${beltCount}, only ${idleBelts.length} free.`);
+                return;
+            }
+
+            flight.belts.forEach(bId => {
+                let b = AIRPORT.belts.find(x => x.id === bId);
+                if (b && !b.firstBagArrived) b.assignedFlightInId = null;
+            });
+            flight.belts = [];
+
+            for (let i = 0; i < beltCount; i++) {
+                let b = idleBelts[i];
+                b.assignedFlightInId = flight.inId;
+                flight.belts.push(b.id);
+            }
+
+            logEvent(`SMART ALLOCATION: ${flight.inId} assigned to [${flight.belts.map(b => 'Carousel ' + b).join(' & ')}].`, "info");
+            renderStandsTable();
+            renderBaggageHubView();
+            renderFidsBoards();
+            updateDynamicStats();
+        }
+
+        function handleBeltDropdownChange(beltId, selectedFlightInId) {
+            let b = AIRPORT.belts.find(x => x.id === beltId);
+            if (!b) return;
+
+            if (b.firstBagArrived && b.assignedFlightInId) {
+                alert(`⚠️ Cannot unassign Belt ${beltId}: Bags have already been delivered!`);
+                let selectEl = document.getElementById(`belt-assign-select-${beltId}`);
+                if (selectEl) selectEl.value = b.assignedFlightInId;
+                return;
+            }
+
+            if (b.assignedFlightInId) {
+                let prevFlight = flights.find(f => f.inId === b.assignedFlightInId);
+                if (prevFlight) prevFlight.belts = prevFlight.belts.filter(id => id !== beltId);
+            }
+
+            if (!selectedFlightInId) {
+                b.assignedFlightInId = null;
+                logEvent(`Carousel Belt ${beltId} set to Available.`, "info");
+            } else {
+                let target = flights.find(f => f.inId === selectedFlightInId);
+                if (target) {
+                    if (!target.belts.includes(beltId)) target.belts.push(beltId);
+                    b.assignedFlightInId = target.inId;
+                    logEvent(`Carousel Belt ${beltId} assigned to Inbound ${target.inId}.`, "info");
+                }
+            }
+            renderStandsTable();
+            renderFidsBoards();
+            updateDynamicStats();
+        }
+
+        // --- SPLIT BOARDING GATES RENDERER ---
+        function renderSplitBoardingViews() {
+            let activeDockedFlights = flights.filter(f => f.stand !== null && !f.isDeparturePunched);
+
+            let contactSectionFlights = activeDockedFlights.filter(f => {
+                let standObj = AIRPORT.stands.find(s => s.id === f.stand);
+                let gateObj = AIRPORT.gates.find(g => g.id === f.gate);
+                return (!standObj || !standObj.isRemote) && (!gateObj || !gateObj.isRemote);
+            });
+
+            let remoteSectionFlights = activeDockedFlights.filter(f => {
+                let standObj = AIRPORT.stands.find(s => s.id === f.stand);
+                let gateObj = AIRPORT.gates.find(g => g.id === f.gate);
+                return (standObj && standObj.isRemote) || (gateObj && gateObj.isRemote);
+            });
+
+            document.getElementById('boarding-contact-grid').innerHTML = contactSectionFlights.length ? contactSectionFlights.map(f => renderBoardingCardHTML(f)).join('') : `<div style="grid-column: 1 / -1; font-size:0.8rem; color:var(--text-muted); padding:12px; background:var(--bg-panel); border-radius:4px;">No contact flights currently assigned. Dock an aircraft at Stands 1–8.</div>`;
+            document.getElementById('boarding-remote-grid').innerHTML = remoteSectionFlights.length ? remoteSectionFlights.map(f => renderBoardingCardHTML(f)).join('') : `<div style="grid-column: 1 / -1; font-size:0.8rem; color:var(--text-muted); padding:12px; background:var(--bg-panel); border-radius:4px;">No remote bus flights currently assigned. Dock an aircraft at Stands 9–12 or select Remote Gates (R1–R4).</div>`;
+        }
+
+        function renderBoardingCardHTML(f) {
+            let standObj = AIRPORT.stands.find(s => s.id === f.stand);
+            let standNum = f.stand ? f.stand.replace('Stand ', '') : null;
+            let matchingContactGate = standNum && parseInt(standNum) <= 8 ? `Gate G${standNum}` : null;
+            let gateObj = AIRPORT.gates.find(g => g.id === f.gate);
+            let isRemote = (gateObj && gateObj.isRemote) || (standObj && standObj.isRemote);
+
+            return `
+                <div class="card" id="boarding-card-${f.outId}" style="border-color:${f.color};">
+                    <div class="card-title">
+                        <span><span class="flight-pill" style="background:${f.color};">${f.outId}</span> [${f.gate ? f.gate : '<span style="color:var(--danger)">NO GATE ASSIGNED</span>'}]</span>
+                        <span style="font-size:0.75rem; color:${f.color};" id="boarding-stage-${f.outId}">${f.state}</span>
+                    </div>
+                    <div style="font-size:0.78rem; display:flex; flex-direction:column; gap:4px;">
+                        <div style="display:flex; justify-content:space-between; background:#030712; padding:4px 8px; border-radius:4px;">
+                            <span>Assigned Stand: <strong style="color:var(--accent);">${f.stand} (${standObj && standObj.isRemote ? 'Remote' : 'Contact'})</strong></span>
+                            <span>ETD: <strong style="color:var(--fids-yellow);">${formatClock(f.depSec)}</strong></span>
+                        </div>
+                        
+                        <div style="display:flex; gap:6px; align-items:center; margin:6px 0;">
+                            <span>Gate:</span>
+                            <select id="gate-select-${f.outId}" onchange="setFlightGate('${f.outId}', this.value)" style="width:100%;">
+                                <option value="">-- Assign Gate --</option>
+                                ${!standObj || !standObj.isRemote ? `
+                                    <optgroup label="Direct Matching Contact Gate">
+                                        ${matchingContactGate ? `<option value="${matchingContactGate}" ${f.gate === matchingContactGate ? 'selected' : ''}>${matchingContactGate} (Only Stand ${standNum} Gate)</option>` : ''}
+                                    </optgroup>
+                                ` : ''}
+                                <optgroup label="Remote Gates (Apron Shuttle Bus)">
+                                    ${AIRPORT.gates.filter(g => g.isRemote).map(g => `<option value="${g.id}" ${f.gate === g.id ? 'selected' : ''}>${g.id} (Bus Transfer)</option>`).join('')}
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        ${isRemote ? `
+                            <div id="remote-bus-control-${f.outId}" style="background:#0a0f1d; padding:6px; border-radius:4px; border:1px solid var(--border);">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span>🚌 Cobus Shuttles:</span>
+                                    <div>
+                                        <button class="btn btn-muted" style="padding:1px 6px;" onclick="adjustGateBuses('${f.outId}', -1)">-</button>
+                                        <strong id="bus-count-${f.outId}" style="margin:0 6px; color:var(--accent);">${gateObj ? gateObj.buses : 1}</strong>
+                                        <button class="btn btn-muted" style="padding:1px 6px;" onclick="adjustGateBuses('${f.outId}', 1)">+</button>
+                                    </div>
+                                </div>
+                                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Capacity: 40 PAX / bus trip</div>
+                            </div>
+                        ` : ''}
+
+                        <div style="background:#0a0f1d; padding:6px; border-radius:4px; margin:4px 0; border:1px solid var(--border);">
+                            <div>Pax Ready in Lounge: <strong style="color:var(--accent);" id="gate-lounge-pax-${f.outId}">0</strong> / ${f.outboundPax}</div>
+                            <div>Cabin Cleaning: <strong id="cleaning-status-${f.outId}" style="color:#f43f5e;">In Progress (${Math.floor(f.service.clean)}%)</strong></div>
+                        </div>
+                        <div>Boarded Passengers: <strong id="boarded-pax-${f.outId}">0 / ${f.outboundPax}</strong></div>
+                        <div class="progress-track"><div class="progress-fill" id="boarding-bar-${f.outId}" style="background:${f.color};"></div></div>
+                        <div style="display:flex; gap:6px; margin-top:8px;">
+                            <button class="btn btn-warn" id="start-boarding-btn-${f.outId}" onclick="startBoardingManual('${f.outId}')">START BOARDING</button>
+                            <button class="btn" id="hold-boarding-btn-${f.outId}" onclick="toggleBoardingHold('${f.outId}')">HOLD</button>
+                            <button class="btn btn-success" id="handover-btn-${f.outId}" disabled onclick="handoverToRampAgent('${f.outId}')">HANDOVER TO RAMP AGENT</button>
+                        </div>
+                        <div id="gate-fault-slot-${f.outId}" style="margin-top:4px;"></div>
+                        <div id="gate-incident-${f.outId}"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- SORT ENGINE ---
+        function sortTable(view, key) {
+            if (sortConfig[view].key === key) {
+                sortConfig[view].asc = !sortConfig[view].asc;
+            } else {
+                sortConfig[view].key = key;
+                sortConfig[view].asc = true;
+            }
+            if (view === 'stands') renderStandsTable();
+            if (view === 'checkin') renderCheckinTable();
+        }
+
+        function renderStandsTable() {
+            let active = flights.filter(f => !f.isDeparturePunched);
+            let { key, asc } = sortConfig.stands;
+
+            active.sort((a, b) => {
+                let valA, valB;
+                if (key === 'name') { valA = a.inId; valB = b.inId; }
+                else if (key === 'type') { valA = a.type; valB = b.type; }
+                else if (key === 'payload') { valA = a.inboundPax; valB = b.inboundPax; }
+                else if (key === 'eta') { valA = a.touchdownSec; valB = b.touchdownSec; }
+                else if (key === 'phase') { valA = a.state; valB = b.state; }
+                else if (key === 'stand') { valA = a.stand || ''; valB = b.stand || ''; }
+                return asc ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+            });
+
+            document.getElementById('stands-alloc-tbody').innerHTML = active.map(f => {
+                let beltStatus = f.belts.length ? f.belts.map(b => `Belt ${b}`).join(', ') : (f.bagsOffloadedTotal >= f.inboundBags ? '<strong style="color:var(--success)">COMPLETE</strong>' : '<span style="color:var(--danger)">Unassigned</span>');
+
+                return `
+                    <tr id="stand-row-${f.inId}">
+                        <td><span class="flight-pill" style="background:${f.color};">${f.inId} / ${f.outId}</span><br><small style="color:var(--text-muted)">${f.origin} to ${f.dest}</small></td>
+                        <td>${f.type} (${f.sizeReq})</td>
+                        <td><strong style="color:${f.color};">${f.inboundPax} PAX</strong><br><small style="color:var(--text-muted);">${f.inboundBags} Inbound Bags</small></td>
+                        <td><strong style="color:var(--fids-yellow);">${formatClock(f.touchdownSec)}</strong></td>
+                        <td><span id="flight-phase-${f.inId}" style="font-weight:bold; color:${f.color};">${f.state}</span></td>
+                        <td>
+                            <select onchange="setStand('${f.inId}', this.value)" id="select-stand-${f.inId}">
+                                <option value="">-- Assign Stand --</option>
+                                ${AIRPORT.stands.map(s => `<option value="${s.id}" ${f.stand === s.id ? 'selected' : ''}>${s.id} (Size: ${s.size} | ${s.isRemote ? 'Remote' : 'Contact'})</option>`).join('')}
+                            </select>
+                        </td>
+                        <td><strong style="color:var(--accent);">${beltStatus}</strong></td>
+                        <td>
+                            <div style="display:flex; gap:4px;">
+                                <button class="btn btn-warn" onclick="requestFlightAction('${f.inId}', 'DIVERT')">Divert</button>
+                                <button class="btn btn-danger" onclick="requestFlightAction('${f.inId}', 'CANCEL_INBOUND')">Cancel In</button>
+                                <button class="btn btn-danger" onclick="requestFlightAction('${f.outId}', 'CANCEL_OUTBOUND')">Cancel Out</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderCheckinTable() {
+            let active = flights.filter(f => !f.isDeparturePunched && !f.isDesksFlushed);
+            let { key, asc } = sortConfig.checkin;
+
+            active.sort((a, b) => {
+                let valA, valB;
+                if (key === 'flight') { valA = a.outId; valB = b.outId; }
+                else if (key === 'etd') { valA = a.depSec; valB = b.depSec; }
+                else if (key === 'load') { valA = a.outboundPax; valB = b.outboundPax; }
+                else if (key === 'flow') { valA = a.desks.length; valB = b.desks.length; }
+                else if (key === 'desks') { valA = a.desks.length; valB = b.desks.length; }
+                else if (key === 'progress') { valA = a.checkedInPax / a.outboundPax; valB = b.checkedInPax / b.outboundPax; }
+                return asc ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+            });
+
+            document.getElementById('checkin-table-tbody').innerHTML = active.map(f => `
+                <tr id="checkin-row-${f.outId}">
+                    <td><span class="flight-pill" style="background:${f.color};">${f.outId}</span><br><small style="color:var(--text-muted);">${f.dest}</small></td>
+                    <td><strong style="color:var(--fids-yellow);">${formatClock(f.depSec)}</strong><div style="font-size:0.72rem; color:var(--text-muted);" id="etd-countdown-${f.outId}">--</div></td>
+                    <td>${f.outboundPax} PAX / ${f.outboundBags} Bags</td>
+                    <td><strong style="color:${f.color};" id="flow-rate-${f.outId}">0.0</strong></td>
+                    <td id="desks-assigned-${f.outId}"><span style="color:var(--danger)">None</span></td>
+                    <td>
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <button class="btn btn-warn" id="flight-checkin-pause-btn-${f.outId}" onclick="toggleFlightCheckinPause('${f.outId}')">Pause</button>
+                            <button class="btn btn-muted" id="flight-desk-flush-btn-${f.outId}" onclick="flushFlightDesks('${f.outId}')">Flush Desks</button>
+                        </div>
+                    </td>
+                    <td style="width:170px;">
+                        <div style="font-size:0.72rem;" id="pax-checkin-text-${f.outId}">0/${f.outboundPax} P</div>
+                        <div class="progress-track"><div class="progress-fill" id="pax-checkin-bar-${f.outId}" style="background:${f.color};"></div></div>
+                        <div id="checkin-complete-badge-${f.outId}" style="font-size:0.7rem; font-weight:bold; margin-top:2px;"></div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- TELEMETRY FAST MUTATOR ---
+        function updateTelemetryDOM() {
+            flights.forEach(f => {
+                let txt = document.getElementById(`pax-checkin-text-${f.outId}`);
+                let bar = document.getElementById(`pax-checkin-bar-${f.outId}`);
+                let flow = document.getElementById(`flow-rate-${f.outId}`);
+                let desksCell = document.getElementById(`desks-assigned-${f.outId}`);
+                let badge = document.getElementById(`checkin-complete-badge-${f.outId}`);
+                let phaseEl = document.getElementById(`flight-phase-${f.inId}`);
+
+                if (phaseEl) {
+                    phaseEl.innerText = f.state;
+                    phaseEl.style.color = (f.state === "CANCELLED" || f.state === "DIVERTED" || f.state === "HOLDING_FOR_STAND") ? "var(--danger)" : f.color;
+                }
+
+                if (txt && bar && flow) {
+                    if (f.state === "CANCELLED") {
+                        txt.innerText = "CANCELLED";
+                        flow.innerText = "0.0 (CANCELLED)";
+                        bar.style.width = "100%";
+                        bar.style.background = "var(--danger)";
+                    } else {
+                        txt.innerText = `${Math.floor(f.checkedInPax)} / ${f.outboundPax} P | ${Math.floor(f.checkedInBags)} / ${f.outboundBags} B`;
+                        bar.style.width = `${(f.checkedInPax / f.outboundPax) * 100}%`;
+                        
+                        let activeDeskCount = f.desks.map(dNum => AIRPORT.desksData[dNum - 1]).filter(d => !d.activeIncident).length;
+                        let rate = activeDeskCount * (f.isIntl ? 0.9 : 1.8);
+                        flow.innerText = f.checkinPaused ? "0.0 (PAUSED)" : `${rate.toFixed(1)} P/min`;
+
+                        if (desksCell) {
+                            desksCell.innerHTML = f.desks.length ? `${f.desks.length} Desks (${f.desks.join(',')})` : '<span style="color:var(--danger)">None</span>';
+                        }
+
+                        if (badge) {
+                            if (f.checkedInPax >= f.outboundPax) {
+                                badge.innerText = "✓ CHECK-IN COMPLETE";
+                                badge.style.color = "var(--success)";
+                            } else if (f.checkinPaused) {
+                                badge.innerText = "⏸ CHECK-IN PAUSED";
+                                badge.style.color = "var(--warning)";
+                            } else {
+                                badge.innerText = "";
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- PERIODIC UI UPDATER ---
         function updateDynamicStats() {
-            // Stands Overview & Distinct Turnaround Bars
+            let usedBuses = 0;
+            let activeDockedFlights = flights.filter(f => f.stand !== null && !f.isDeparturePunched);
+            let assignedGatesCount = activeDockedFlights.filter(f => f.gate !== null).length;
+            let unassignedGatesCount = activeDockedFlights.length - assignedGatesCount;
+
+            flights.forEach(f => {
+                let gateObj = AIRPORT.gates.find(g => g.id === f.gate);
+                if (gateObj && gateObj.isRemote && f.boardingStarted && f.state !== "READY" && f.state !== "DEPARTED") {
+                    usedBuses += gateObj.buses;
+                }
+            });
+            document.getElementById('bus-fleet-status').innerText = `Available in Pool: ${Math.max(0, AIRPORT.totalBuses - usedBuses)} / ${AIRPORT.totalBuses}`;
+            document.getElementById('docked-flights-count').innerText = activeDockedFlights.length;
+            document.getElementById('assigned-gates-count').innerText = assignedGatesCount;
+            document.getElementById('unassigned-gates-count').innerText = unassignedGatesCount;
+
+            // Stands Cards
             AIRPORT.stands.forEach(s => {
                 let sKey = s.id.replace(' ', '-');
                 let card = document.getElementById(`stand-card-${sKey}`);
-                let f = flights.find(x => x.stand === s.id && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(x.state));
+                let f = flights.find(x => x.stand === s.id && !x.isDeparturePunched && !["CANCELLED", "DIVERTED"].includes(x.state));
                 let flightLabel = document.getElementById(`stand-flight-${sKey}`);
                 let detailsLabel = document.getElementById(`stand-details-${sKey}`);
                 let breakdownBox = document.getElementById(`stand-turnaround-breakdown-${sKey}`);
                 let actionSlot = document.getElementById(`stand-action-slot-${sKey}`);
+                let alertSlot = document.getElementById(`stand-alert-slot-${sKey}`);
+                let handoverStatus = document.getElementById(`handover-status-label-${sKey}`);
+                let fuelRow = document.getElementById(`fuel-task-row-${sKey}`);
+                let caterRow = document.getElementById(`cater-task-row-${sKey}`);
                 let incBox = document.getElementById(`stand-incident-${sKey}`);
 
                 if (f) {
                     card.style.borderColor = f.color;
+
+                    // Alert check for unassigned belt or stalled cargo
+                    let hasNoBelt = f.belts.length === 0 && f.state === "ON_STAND" && f.bagsOffloadedTotal < f.inboundBags;
+                    let hasCargoStall = f.activeIncident && f.activeIncident.id === "BAG-04";
+
+                    if (hasNoBelt) {
+                        alertSlot.innerHTML = `<div class="alert-callout">🚨 LUGGAGE BLOCKED: NO RECLAIM BELT ASSIGNED!</div>`;
+                    } else if (hasCargoStall) {
+                        alertSlot.innerHTML = `<div class="alert-callout">🚨 LUGGAGE STALLED: CARGO DOOR LOCK JAM!</div>`;
+                    } else {
+                        alertSlot.innerHTML = '';
+                    }
+
                     if (!f.isOutboundApproved) {
                         breakdownBox.style.display = "none";
                         flightLabel.innerHTML = `<span class="flight-pill" style="background:${f.color};">IN: ${f.inId}</span>`;
@@ -1315,15 +1657,11 @@
                             <div>Inbound Flight: <strong>${f.inId}</strong> (${f.origin})</div>
                             <div>Inbound Payload: <strong style="color:${f.color};">${f.inboundPax} PAX / ${f.inboundBags} Bags</strong></div>
                             <div>Disembarked: ${Math.floor(f.disembarkPax)} / ${f.inboundPax} | Offloaded: ${Math.floor(f.bagsOffloadedTotal)} / ${f.inboundBags}</div>
-                            <div style="margin-top:4px;">Stand Status: <strong style="color:${isInboundComplete ? 'var(--success)' : 'var(--fids-yellow)'};">${isInboundComplete ? 'INBOUND COMPLETE - AWAITING APPROVAL' : statusText}</strong></div>
+                            <div style="margin-top:4px;">Stand Status: <strong style="color:${isInboundComplete ? 'var(--success)' : 'var(--fids-yellow)'};">${isInboundComplete ? 'INBOUND COMPLETE - AWAITING LOADING APPROVAL' : statusText}</strong></div>
                         `;
 
                         if (isInboundComplete) {
-                            actionSlot.innerHTML = `
-                                <button class="btn btn-success" style="width:100%; margin-top:8px; font-weight:800;" onclick="approveOutboundLoading('${f.inId}')">
-                                    ✓ APPROVE OUTBOUND LOADING (${f.outId})
-                                </button>
-                            `;
+                            actionSlot.innerHTML = `<button class="btn btn-success" style="width:100%; margin-top:8px; font-weight:800;" onclick="approveOutboundLoading('${f.inId}')">⚡ APPROVE OUTBOUND LOADING (${f.outId})</button>`;
                         } else {
                             actionSlot.innerHTML = '';
                         }
@@ -1340,29 +1678,50 @@
 
                         document.getElementById(`clean-val-${sKey}`).innerText = `${Math.floor(f.service.clean)}% ${f.service.clean >= 100 ? '✓' : ''}`;
                         document.getElementById(`clean-bar-${sKey}`).style.width = `${f.service.clean}%`;
-                        
-                        document.getElementById(`fuel-val-${sKey}`).innerText = `${Math.floor(f.service.fuel)}% ${f.service.fuel >= 100 ? '✓' : ''}`;
-                        document.getElementById(`fuel-bar-${sKey}`).style.width = `${f.service.fuel}%`;
 
-                        document.getElementById(`cater-val-${sKey}`).innerText = `${Math.floor(f.service.cater)}% ${f.service.cater >= 100 ? '✓' : ''}`;
-                        document.getElementById(`cater-bar-${sKey}`).style.width = `${f.service.cater}%`;
+                        if (f.needsFueling) {
+                            fuelRow.style.display = "flex";
+                            document.getElementById(`fuel-val-${sKey}`).innerText = `${Math.floor(f.service.fuel)}% ${f.service.fuel >= 100 ? '✓' : ''}`;
+                            document.getElementById(`fuel-bar-${sKey}`).style.width = `${f.service.fuel}%`;
+                        } else {
+                            fuelRow.style.display = "none";
+                        }
 
-                        actionSlot.innerHTML = '';
+                        if (f.needsCatering) {
+                            caterRow.style.display = "flex";
+                            document.getElementById(`cater-val-${sKey}`).innerText = `${Math.floor(f.service.cater)}% ${f.service.cater >= 100 ? '✓' : ''}`;
+                            document.getElementById(`cater-bar-${sKey}`).style.width = `${f.service.cater}%`;
+                        } else {
+                            caterRow.style.display = "none";
+                        }
+
+                        if (handoverStatus) {
+                            handoverStatus.innerText = f.isGateHandedOver ? "✓ HANDED OVER BY GATE" : "WAITING FOR GATE HANDOVER";
+                            handoverStatus.style.color = f.isGateHandedOver ? "var(--success)" : "var(--warning)";
+                        }
+
+                        let isFullyServiced = f.service.clean >= 100 && f.service.fuel >= 100 && f.service.cater >= 100;
+                        if (f.isGateHandedOver && isFullyServiced) {
+                            actionSlot.innerHTML = `<button class="btn btn-success" style="width:100%; margin-top:8px; font-weight:800;" onclick="dispatchFlight('${f.outId}')">🛫 RAMP AGENT: FINAL DISPATCH & PUSHBACK</button>`;
+                        } else {
+                            actionSlot.innerHTML = `<button class="btn btn-muted" style="width:100%; margin-top:8px;" disabled>RAMP AGENT: AWAITING HANDOVER & SERVICING</button>`;
+                        }
                     }
                 } else {
                     card.style.borderColor = "var(--border)";
                     flightLabel.innerText = "VACANT";
                     flightLabel.style.color = "var(--text-muted)";
-                    detailsLabel.innerText = "Stand clear. Ready for arrival assignment.";
+                    detailsLabel.innerText = "Stand ready.";
                     breakdownBox.style.display = "none";
                     actionSlot.innerHTML = '';
+                    alertSlot.innerHTML = '';
                 }
 
                 if (s.activeIncident) {
                     incBox.innerHTML = `
                         <div class="incident-badge">
                             <strong>⚠️ [${s.activeIncident.id}] ${s.activeIncident.name}</strong>
-                            <span>${s.activeIncident.desc} (${Math.floor(s.activeIncident.remaining)}s left)</span>
+                            <span>${s.activeIncident.desc} (${Math.floor(s.activeIncident.remaining)}s remaining)</span>
                             <button class="btn btn-fix" onclick="repairIncident('STAND', '${s.id}')">DISPATCH REPAIR CREW (-${s.activeIncident.fixCost} PTS)</button>
                         </div>
                     `;
@@ -1371,396 +1730,175 @@
                 }
             });
 
-            // Table Elements & ETD Countdowns
-            flights.forEach(f => {
-                let phaseEl = document.getElementById(`flight-phase-${f.inId}`);
-                if (phaseEl) {
-                    phaseEl.innerText = f.state;
-                    if (["HOLDING_FOR_STAND", "CANCELLED", "DIVERTED"].includes(f.state)) phaseEl.style.color = "var(--danger)";
-                    else if (["TAXIING_IN", "LANDING"].includes(f.state)) phaseEl.style.color = "var(--warning)";
-                    else phaseEl.style.color = f.color;
-                }
-
-                // ETD Countdown on Check-in Island
-                let etdCountdownEl = document.getElementById(`etd-countdown-${f.outId}`);
-                if (etdCountdownEl) {
-                    if (f.state === "CANCELLED") {
-                        etdCountdownEl.innerText = "CANCELLED";
-                        etdCountdownEl.style.color = "var(--danger)";
-                    } else {
-                        let diff = f.depSec - simSeconds;
-                        if (diff > 0) {
-                            etdCountdownEl.innerText = `(in ${Math.floor(diff / 60)}m ${Math.floor(diff % 60)}s)`;
-                            etdCountdownEl.style.color = diff < 600 ? "var(--danger)" : "var(--text-muted)";
-                        } else {
-                            etdCountdownEl.innerText = `(PAST ETD: ${Math.floor(Math.abs(diff) / 60)}m late)`;
-                            etdCountdownEl.style.color = "var(--danger)";
-                        }
-                    }
-                }
-
-                // Check-in Metrics & Cancellation State on Check-in Panel
-                let flowRateEl = document.getElementById(`flow-rate-${f.outId}`);
-                let assignedDesksEl = document.getElementById(`desks-assigned-${f.outId}`);
-                let checkinTextEl = document.getElementById(`pax-checkin-text-${f.outId}`);
-                let checkinBarEl = document.getElementById(`pax-checkin-bar-${f.outId}`);
-                let pauseBtn = document.getElementById(`flight-checkin-pause-btn-${f.outId}`);
-                let flushBtn = document.getElementById(`flight-desk-flush-btn-${f.outId}`);
-                let completeBadge = document.getElementById(`checkin-complete-badge-${f.outId}`);
-
-                if (f.state === "CANCELLED") {
-                    if (flowRateEl) flowRateEl.innerText = "0.0 (CANCELLED)";
-                    if (assignedDesksEl) assignedDesksEl.innerHTML = `<span style="color:var(--danger); font-weight:bold;">CANCELLED</span>`;
-                    if (checkinTextEl) checkinTextEl.innerText = `CANCELLED`;
-                    if (checkinBarEl) {
-                        checkinBarEl.style.width = `100%`;
-                        checkinBarEl.style.background = `var(--danger)`;
-                    }
-                    if (pauseBtn) pauseBtn.disabled = true;
-                    if (flushBtn) flushBtn.disabled = true;
-                    if (completeBadge) {
-                        completeBadge.innerText = "✕ FLIGHT CANCELLED";
-                        completeBadge.style.color = "var(--danger)";
-                    }
-                } else {
-                    if (flowRateEl) flowRateEl.innerText = f.checkinPaused ? "0.0 (PAUSED)" : (f.desks.length * (f.isIntl ? 1.2 : 2.4)).toFixed(1);
-                    if (assignedDesksEl) assignedDesksEl.innerHTML = f.desks.length ? `${f.desks.length} Desks (${f.desks.join(',')})` : '<span style="color:var(--danger)">None</span>';
-                    if (checkinTextEl) checkinTextEl.innerText = `${Math.floor(f.checkedInPax)}/${f.outboundPax} P | ${Math.floor(f.checkedInBags)}/${f.outboundBags} B`;
-                    if (checkinBarEl) {
-                        checkinBarEl.style.width = `${(f.checkedInPax / f.outboundPax) * 100}%`;
-                        checkinBarEl.style.background = f.color;
-                    }
-                    if (pauseBtn) {
-                        pauseBtn.disabled = false;
-                        pauseBtn.innerText = f.checkinPaused ? "Resume" : "Pause";
-                        pauseBtn.className = f.checkinPaused ? "btn btn-success" : "btn btn-warn";
-                    }
-                    if (flushBtn) flushBtn.disabled = false;
-
-                    if (completeBadge) {
-                        if (f.checkedInPax >= f.outboundPax) {
-                            completeBadge.innerText = "✓ CHECK-IN COMPLETE";
-                            completeBadge.style.color = "var(--success)";
-                        } else if (f.checkinPaused) {
-                            completeBadge.innerText = "⏸ CHECK-IN PAUSED";
-                            completeBadge.style.color = "var(--warning)";
-                        } else {
-                            completeBadge.innerText = "";
-                        }
-                    }
-                }
-
-                // Boarding Controls, Fault Badge & Strict Cleaning Interlock
-                let boardingCard = document.getElementById(`boarding-card-${f.outId}`);
-                let gateStandEl = document.getElementById(`gate-stand-${f.outId}`);
+            // Boarding Cards
+            flights.filter(f => f.stand !== null && !f.isDeparturePunched).forEach(f => {
+                let busCount = document.getElementById(`bus-count-${f.outId}`);
+                let cleanStatus = document.getElementById(`cleaning-status-${f.outId}`);
+                let loungePax = document.getElementById(`gate-lounge-pax-${f.outId}`);
+                let boardedPax = document.getElementById(`boarded-pax-${f.outId}`);
+                let boardingBar = document.getElementById(`boarding-bar-${f.outId}`);
+                let startBtn = document.getElementById(`start-boarding-btn-${f.outId}`);
+                let holdBtn = document.getElementById(`hold-boarding-btn-${f.outId}`);
+                let handoverBtn = document.getElementById(`handover-btn-${f.outId}`);
                 let stageEl = document.getElementById(`boarding-stage-${f.outId}`);
-                let loungePaxEl = document.getElementById(`gate-lounge-pax-${f.outId}`);
-                let cleanStatusEl = document.getElementById(`cleaning-status-${f.outId}`);
-                let boardedPaxEl = document.getElementById(`boarded-pax-${f.outId}`);
-                let boardingBarEl = document.getElementById(`boarding-bar-${f.outId}`);
-                let startBoardingBtn = document.getElementById(`start-boarding-btn-${f.outId}`);
-                let holdBoardingBtn = document.getElementById(`hold-boarding-btn-${f.outId}`);
-                let dispatchBtn = document.getElementById(`dispatch-btn-${f.outId}`);
-                let gateFaultSlot = document.getElementById(`gate-fault-slot-${f.outId}`);
-                let gateIncBox = document.getElementById(`gate-incident-${f.outId}`);
 
-                if (boardingCard) boardingCard.style.borderColor = f.color;
-                if (gateStandEl) gateStandEl.innerText = f.stand ? f.stand.replace('Stand ', 'Gate ') : 'Unassigned';
-                if (stageEl) stageEl.innerText = f.state;
-                
-                let paxInLounge = Math.max(0, Math.floor(f.secClearedPax - f.boardedPax));
-                if (loungePaxEl) loungePaxEl.innerText = paxInLounge;
+                let gateObj = AIRPORT.gates.find(g => g.id === f.gate);
+                if (busCount && gateObj && gateObj.isRemote) busCount.innerText = gateObj.buses;
 
-                if (cleanStatusEl) {
-                    if (f.service.clean >= 100) {
-                        cleanStatusEl.innerText = "✓ Cleaning Complete (Ready to Board)";
-                        cleanStatusEl.style.color = "var(--success)";
-                    } else {
-                        cleanStatusEl.innerText = `Cleaning in Progress (${Math.floor(f.service.clean)}%)`;
-                        cleanStatusEl.style.color = "#f43f5e";
-                    }
-                }
+                if (stageEl) stageEl.innerText = f.isGateHandedOver ? "HANDED OVER TO RAMP" : f.state;
+                if (loungePax) loungePax.innerText = Math.max(0, Math.floor(f.checkedInPax - f.boardedPax));
+                if (cleanStatus) cleanStatus.innerText = f.service.clean >= 100 ? "✓ Cleaning Complete" : `Cleaning (${Math.floor(f.service.clean)}%)`;
+                if (boardedPax) boardedPax.innerText = `${Math.floor(f.boardedPax)} / ${f.outboundPax}`;
+                if (boardingBar) boardingBar.style.width = `${(f.boardedPax / f.outboundPax) * 100}%`;
 
-                if (boardedPaxEl) boardedPaxEl.innerText = `${Math.floor(f.boardedPax)} / ${f.outboundPax}`;
-                if (boardingBarEl) boardingBarEl.style.width = `${(f.boardedPax / f.outboundPax) * 100}%`;
-
-                // Stand incident check for gate fault
-                let standObj = AIRPORT.stands.find(s => s.id === f.stand);
-                let standCabinHeatFault = standObj && standObj.activeIncident && standObj.activeIncident.id === "BRD-01";
-                let activeGateFault = f.activeIncident || (standCabinHeatFault ? standObj.activeIncident : null);
-
-                if (activeGateFault) {
-                    gateFaultSlot.innerHTML = `
-                        <div class="fault-badge">
-                            🚨 FAULT: [${activeGateFault.id}] ${activeGateFault.name.toUpperCase()} (FIX: ${Math.floor(activeGateFault.remaining)}s)
-                        </div>
-                    `;
-                } else if (f.boardingHeld) {
-                    gateFaultSlot.innerHTML = `<span class="fault-badge" style="background:var(--warning); color:#000;">⏸ BOARDING ON HOLD</span>`;
-                } else {
-                    gateFaultSlot.innerHTML = '';
-                }
-
-                if (startBoardingBtn) {
-                    // Boarding locked if fault present, cleaning incomplete, or flight cancelled
-                    startBoardingBtn.disabled = f.boardingStarted || f.service.clean < 100 || activeGateFault !== null || f.state === "CANCELLED";
-                }
-                if (holdBoardingBtn) {
-                    holdBoardingBtn.innerText = f.boardingHeld ? "RESUME" : "HOLD";
-                    holdBoardingBtn.disabled = f.state === "CANCELLED" || activeGateFault !== null;
-                }
-                if (dispatchBtn) {
-                    dispatchBtn.disabled = f.state !== "READY";
-                }
-
-                if (f.activeIncident) {
-                    gateIncBox.innerHTML = `
-                        <div class="incident-badge">
-                            <strong>⚠️ [${f.activeIncident.id}] ${f.activeIncident.name}</strong>
-                            <span>${f.activeIncident.desc} (${Math.floor(f.activeIncident.remaining)}s left)</span>
-                            <button class="btn btn-fix" onclick="repairIncident('FLIGHT', '${f.outId}')">RESOLVE INCIDENT (-${f.activeIncident.fixCost} PTS)</button>
-                        </div>
-                    `;
-                } else {
-                    gateIncBox.innerHTML = '';
-                }
+                if (startBtn) startBtn.disabled = f.boardingStarted || f.service.clean < 100 || !f.gate || f.state === "CANCELLED" || f.isGateHandedOver;
+                if (holdBtn) holdBtn.innerText = f.boardingHeld ? "RESUME" : "HOLD";
+                if (handoverBtn) handoverBtn.disabled = f.boardedPax < f.outboundPax || f.isGateHandedOver;
             });
 
-            // Desks Dynamic Cards & Dropdown Sync
-            let activeCountersCount = 0;
-            AIRPORT.desksData.forEach(d => {
-                let card = document.getElementById(`desk-card-${d.id}`);
-                let statusPill = document.getElementById(`desk-status-pill-${d.id}`);
-                let selectEl = document.getElementById(`desk-select-${d.id}`);
-                let timerText = document.getElementById(`desk-timer-${d.id}`);
-                let incBox = document.getElementById(`desk-incident-${d.id}`);
-
-                if (d.assignedFlightOutId) {
-                    activeCountersCount++;
-                    let f = flights.find(x => x.outId === d.assignedFlightOutId);
-                    card.style.background = "#18243b";
-                    card.style.borderColor = f ? f.color : "var(--border)";
-                    timerText.innerText = `PAX Timer: ${Math.floor(d.currentPaxTimer)}s`;
-                    
-                    if (d.activeIncident) {
-                        statusPill.innerText = d.activeIncident.id;
-                        statusPill.style.color = "var(--danger)";
-                    } else if (f && f.state === "CANCELLED") {
-                        statusPill.innerText = "CANCELLED";
-                        statusPill.style.color = "var(--danger)";
-                    } else if (f && f.checkinPaused) {
-                        statusPill.innerText = "PAUSED";
-                        statusPill.style.color = "var(--warning)";
-                    } else {
-                        statusPill.innerText = "ACTIVE";
-                        statusPill.style.color = "var(--success)";
-                    }
-                    if (selectEl && selectEl.value !== d.assignedFlightOutId) {
-                        selectEl.value = d.assignedFlightOutId;
-                    }
-                } else {
-                    card.style.background = "#0a0f1d";
-                    card.style.borderColor = "var(--border)";
-                    statusPill.innerText = "IDLE";
-                    statusPill.style.color = "var(--text-muted)";
-                    timerText.innerText = "Timer: 0s";
-                    if (selectEl && selectEl.value !== "") {
-                        selectEl.value = "";
-                    }
-                }
-
-                if (d.activeIncident) {
-                    incBox.innerHTML = `
-                        <div class="incident-badge">
-                            <strong>[${d.activeIncident.id}] ${d.activeIncident.name}</strong>
-                            <span>${Math.floor(d.activeIncident.remaining)}s remaining</span>
-                            <button class="btn btn-fix" onclick="repairIncident('DESK', ${d.id})">SUPERVISOR OVERRIDE (-${d.activeIncident.fixCost} PTS)</button>
-                        </div>
-                    `;
-                } else {
-                    incBox.innerHTML = '';
-                }
-            });
-            document.getElementById('checkin-usage-metric').innerText = `${activeCountersCount}/20 Active`;
-
-            // Security Floors
-            AIRPORT.secFloors.forEach(sf => {
-                let queued = flights.filter(f => f.secFloor === sf.id && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(f.state))
-                                    .reduce((acc, f) => acc + Math.max(0, f.checkedInPax - f.secClearedPax), 0);
-                let cleared = flights.filter(f => f.secFloor === sf.id && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(f.state))
-                                     .reduce((acc, f) => acc + f.secClearedPax, 0);
-
-                let qEl = document.getElementById(`sec-queue-${sf.id}`);
-                let barEl = document.getElementById(`sec-bar-${sf.id}`);
-                let cEl = document.getElementById(`sec-cleared-${sf.id}`);
-                let incBox = document.getElementById(`sec-incident-${sf.id}`);
-
-                if (qEl) qEl.innerText = Math.floor(queued);
-                if (barEl) {
-                    let pct = (queued / sf.maxCapacity) * 100;
-                    barEl.style.width = `${pct}%`;
-                    barEl.style.background = pct >= 100 ? 'var(--danger)' : 'var(--accent)';
-                }
-                if (cEl) cEl.innerText = Math.floor(cleared);
-
-                if (sf.activeIncident) {
-                    incBox.innerHTML = `
-                        <div class="incident-badge">
-                            <strong>⚠️ [${sf.activeIncident.id}] ${sf.activeIncident.name}</strong>
-                            <span>${sf.activeIncident.desc} (${Math.floor(sf.activeIncident.remaining)}s left)</span>
-                            <button class="btn btn-fix" onclick="repairIncident('SECURITY', ${sf.id})">DEPLOY CISF SQUAD (-${sf.activeIncident.fixCost} PTS)</button>
-                        </div>
-                    `;
-                } else {
-                    incBox.innerHTML = '';
-                }
-            });
-
-            // Baggage Belts Telemetry with Independent Parallel Processing
+            // Reclaim Belts
             AIRPORT.belts.forEach(b => {
-                let f = flights.find(x => x.inId === b.assignedFlightInId && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(x.state));
-                let card = document.getElementById(`belt-card-${b.id}`);
-                
-                let paxFlightEl = document.getElementById(`pax-board-flight-${b.id}`);
-                let paxOriginEl = document.getElementById(`pax-board-origin-${b.id}`);
-                let paxStatusEl = document.getElementById(`pax-board-status-${b.id}`);
-                let paxTimerEl = document.getElementById(`pax-board-timer-${b.id}`);
-
-                let telemStatusEl = document.getElementById(`belt-telemetry-status-${b.id}`);
-                let activeBagsEl = document.getElementById(`belt-active-bags-${b.id}`);
-                let loadBarEl = document.getElementById(`belt-load-bar-${b.id}`);
-                let backlogBagsEl = document.getElementById(`belt-backlog-bags-${b.id}`);
-                let inductedBagsEl = document.getElementById(`belt-inducted-bags-${b.id}`);
-                let batchCountdownEl = document.getElementById(`belt-batch-countdown-${b.id}`);
+                let f = flights.find(x => x.inId === b.assignedFlightInId && !x.isDeparturePunched && !["CANCELLED", "DIVERTED"].includes(x.state));
+                let paxFlight = document.getElementById(`pax-board-flight-${b.id}`);
+                let paxOrigin = document.getElementById(`pax-board-origin-${b.id}`);
+                let paxStatus = document.getElementById(`pax-board-status-${b.id}`);
+                let activeBags = document.getElementById(`belt-active-bags-${b.id}`);
+                let backlogBags = document.getElementById(`belt-backlog-bags-${b.id}`);
+                let inductedBags = document.getElementById(`belt-inducted-bags-${b.id}`);
+                let loadBar = document.getElementById(`belt-load-bar-${b.id}`);
                 let flushSlot = document.getElementById(`belt-flush-slot-${b.id}`);
-                let incBox = document.getElementById(`belt-incident-${b.id}`);
+                let assignSelect = document.getElementById(`belt-assign-select-${b.id}`);
 
-                if (card) card.style.borderColor = f ? f.color : "var(--border)";
+                if (assignSelect && f && assignSelect.value !== f.inId) {
+                    assignSelect.value = f.inId;
+                } else if (assignSelect && !f && assignSelect.value !== "") {
+                    assignSelect.value = "";
+                }
 
                 if (b.manualStatus) {
-                    paxStatusEl.innerText = b.manualStatus;
-                    paxStatusEl.style.color = "var(--accent)";
-                    paxTimerEl.innerText = "";
-                } else if (b.activeIncident) {
-                    paxStatusEl.innerText = `⚠️ DELAYED / ${b.activeIncident.name.toUpperCase()}`;
-                    paxStatusEl.style.color = "var(--danger)";
-                    paxTimerEl.innerText = "";
+                    paxStatus.innerText = b.manualStatus;
+                    paxStatus.style.color = "var(--accent)";
                 } else if (!f) {
-                    paxFlightEl.innerText = "-- NO FLIGHT --";
-                    paxOriginEl.innerText = "--";
-                    paxStatusEl.innerText = "BELT AVAILABLE";
-                    paxStatusEl.style.color = "var(--text-muted)";
-                    paxTimerEl.innerText = "";
-                    batchCountdownEl.innerText = "--";
+                    paxFlight.innerText = "-- NO FLIGHT --";
+                    paxOrigin.innerText = "--";
+                    paxStatus.innerText = "BELT AVAILABLE";
+                    paxStatus.style.color = "var(--text-muted)";
                 } else {
-                    paxFlightEl.innerHTML = `<span class="flight-pill" style="background:${f.color};">${f.inId}</span> ${f.airline.toUpperCase()}`;
-                    paxOriginEl.innerText = f.origin;
-
-                    if (["SCHEDULED", "APPROACHING", "LANDING", "TAXIING_IN", "HOLDING_FOR_STAND"].includes(f.state)) {
-                        paxStatusEl.innerText = "ARRIVING";
-                        paxStatusEl.style.color = "var(--fids-yellow)";
-                        paxTimerEl.innerText = "";
-                        batchCountdownEl.innerText = "Awaiting aircraft park";
+                    paxFlight.innerHTML = `<span class="flight-pill" style="background:${f.color};">${f.inId}</span> ${f.airline}`;
+                    paxOrigin.innerText = f.origin;
+                    if (["SCHEDULED", "APPROACHING", "LANDING", "TAXIING_IN"].includes(f.state)) {
+                        paxStatus.innerText = "ARRIVING";
+                        paxStatus.style.color = "var(--fids-yellow)";
                     } else if (f.bagTransitTimer > 0) {
-                        paxStatusEl.innerText = "OFFLOADING";
-                        paxStatusEl.style.color = "var(--fids-yellow)";
-                        paxTimerEl.innerText = `ETA: ${Math.floor(f.bagTransitTimer)}s`;
-                        batchCountdownEl.innerText = `First batch in ~${Math.floor(f.bagTransitTimer)}s`;
+                        paxStatus.innerText = `OFFLOADING (ETA: ${Math.floor(f.bagTransitTimer)}s)`;
                     } else if (f.batchesArrived < f.totalBatches || f.bagsWaitingInBasement > 0) {
-                        paxStatusEl.innerText = `DELIVERY IN PROGRESS (${b.currentBagsOnBelt >= b.maxCapacity ? 'BELT FULL - FEEDING BUFFER' : 'BATCH ' + f.batchesArrived + '/' + f.totalBatches})`;
-                        paxStatusEl.style.color = "var(--success)";
-                        paxTimerEl.innerText = f.bagsWaitingInBasement > 0 ? `Backlog: ${Math.floor(f.bagsWaitingInBasement)}` : `Next: ${Math.floor(f.batchIntervalTimer)}s`;
-                        batchCountdownEl.innerText = f.bagsWaitingInBasement > 0 ? `Holding ${Math.floor(f.bagsWaitingInBasement)} bags in basement buffer` : `Batch ${f.batchesArrived + 1} in ~${Math.floor(f.batchIntervalTimer)}s`;
+                        paxStatus.innerText = "DELIVERY IN PROGRESS";
+                        paxStatus.style.color = "var(--success)";
                     } else if (b.currentBagsOnBelt > 0) {
-                        paxStatusEl.innerText = "ALL BAGS DELIVERED - PLEASE COLLECT";
-                        paxStatusEl.style.color = "var(--success)";
-                        paxTimerEl.innerText = "";
-                        batchCountdownEl.innerText = "All batches delivered (Collecting)";
+                        paxStatus.innerText = "ALL BAGS DELIVERED - PLEASE COLLECT";
+                        paxStatus.style.color = "var(--success)";
                     } else {
-                        paxStatusEl.innerText = "DELIVERY COMPLETE - AWAITING FLUSH";
-                        paxStatusEl.style.color = "var(--text-muted)";
-                        paxTimerEl.innerText = "";
-                        batchCountdownEl.innerText = "Completed";
+                        paxStatus.innerText = "DELIVERY COMPLETE - AWAITING FLUSH";
                     }
                 }
 
-                if (telemStatusEl) {
-                    telemStatusEl.innerText = b.activeIncident ? "⚠️ FAULT" : (b.jammed ? "⚠️ JAMMED" : (b.currentBagsOnBelt > 0 ? "RUNNING" : (f ? "ASSIGNED" : "IDLE")));
-                    telemStatusEl.style.color = (b.activeIncident || b.jammed) ? "var(--danger)" : (b.currentBagsOnBelt > 0 ? "var(--success)" : "var(--text-muted)");
-                }
-                if (activeBagsEl) activeBagsEl.innerText = `${Math.floor(b.currentBagsOnBelt)} / ${b.maxCapacity} Bags`;
-                if (backlogBagsEl) backlogBagsEl.innerText = `${f ? Math.floor(f.bagsWaitingInBasement) : 0} Bags`;
-                if (loadBarEl) {
-                    let pct = (b.currentBagsOnBelt / b.maxCapacity) * 100;
-                    loadBarEl.style.width = `${pct}%`;
-                    loadBarEl.style.background = (b.activeIncident || b.jammed) ? "var(--danger)" : (f ? f.color : "var(--accent)");
-                }
-                if (inductedBagsEl) inductedBagsEl.innerText = `${Math.floor(b.totalInductedBags)} Bags`;
+                if (activeBags) activeBags.innerText = `${Math.floor(b.currentBagsOnBelt)} / ${b.maxCapacity}`;
+                if (backlogBags) backlogBags.innerText = `${f ? Math.floor(f.bagsWaitingInBasement) : 0} Bags`;
+                if (inductedBags) inductedBags.innerText = `${Math.floor(b.totalInductedBags)} Bags`;
+                if (loadBar) loadBar.style.width = `${(b.currentBagsOnBelt / b.maxCapacity) * 100}%`;
 
                 if (b.assignedFlightInId) {
-                    if (!b.firstBagArrived) {
-                        flushSlot.innerHTML = `<button class="btn btn-warn" style="width:100%;" onclick="flushBelt(${b.id})">CANCEL / FLUSH BELT (PRE-DELIVERY)</button>`;
-                    } else if (b.isCompleted && b.currentBagsOnBelt === 0 && (!f || f.bagsWaitingInBasement <= 0)) {
-                        flushSlot.innerHTML = `<button class="btn btn-success" style="width:100%; font-weight:bold;" onclick="flushBelt(${b.id})">✓ FLUSH & RELEASE BELT</button>`;
-                    } else {
-                        flushSlot.innerHTML = `<button class="btn btn-muted" style="width:100%;" disabled>BELT LOCKED (DELIVERY ACTIVE)</button>`;
-                    }
+                    if (!b.firstBagArrived) flushSlot.innerHTML = `<button class="btn btn-warn" style="width:100%;" onclick="flushBelt(${b.id})">CANCEL / FLUSH BELT</button>`;
+                    else if (b.isCompleted && b.currentBagsOnBelt === 0) flushSlot.innerHTML = `<button class="btn btn-success" style="width:100%;" onclick="flushBelt(${b.id})">✓ FLUSH & RELEASE BELT</button>`;
+                    else flushSlot.innerHTML = `<button class="btn btn-muted" style="width:100%;" disabled>BELT LOCKED</button>`;
                 } else {
                     flushSlot.innerHTML = '';
                 }
-
-                if (b.activeIncident) {
-                    incBox.innerHTML = `
-                        <div class="incident-badge">
-                            <strong>⚠️ [${b.activeIncident.id}] ${b.activeIncident.name}</strong>
-                            <span>${b.activeIncident.desc} (${Math.floor(b.activeIncident.remaining)}s left)</span>
-                            <button class="btn btn-fix" onclick="repairIncident('BELT', ${b.id})">UNJAM BELT MOTOR (-${b.activeIncident.fixCost} PTS)</button>
-                        </div>
-                    `;
-                } else {
-                    incBox.innerHTML = '';
-                }
             });
         }
 
-        // --- CHECK-IN DROPDOWN ALLOCATION CONTROLS ---
-        function handleDeskDropdownChange(deskId, selectedFlightOutId) {
-            let desk = AIRPORT.desksData[deskId - 1];
-            
-            if (desk.assignedFlightOutId) {
-                let prevFlight = flights.find(f => f.outId === desk.assignedFlightOutId);
-                if (prevFlight) {
-                    prevFlight.desks = prevFlight.desks.filter(d => d !== deskId);
+        // --- USER ACTIONS ---
+        function setStand(flightInId, standId) {
+            let flight = flights.find(f => f.inId === flightInId);
+            if (!standId) { 
+                flight.stand = null; 
+                flight.gate = null;
+                renderSplitBoardingViews();
+                return; 
+            }
+
+            let stand = AIRPORT.stands.find(s => s.id === standId);
+
+            if (flight.sizeReq === "L" && stand.size === "M") {
+                alert(`⛔ FIT REJECTION: Aircraft ${flight.inId} (${flight.type} - Size L) exceeds Stand limits (${stand.id} - Size M). Cannot be accommodated!`);
+                document.getElementById(`select-stand-${flightInId}`).value = "";
+                return;
+            }
+
+            if (flight.isTurboprop && !stand.isRemote) {
+                let confirmed = confirm(`⚠️ WARNING: ${flight.type} is a turboprop and cannot connect to a Jetbridge. Aircraft will require mobile stairs and bus boarding. Confirm Stand assignment?`);
+                if (!confirmed) {
+                    document.getElementById(`select-stand-${flightInId}`).value = "";
+                    return;
                 }
             }
 
-            if (!selectedFlightOutId) {
-                desk.assignedFlightOutId = null;
-                desk.currentPaxTimer = 0;
-                logEvent(`CHECK-IN OPS: Desk ${deskId} set to Idle.`, "info");
-            } else {
-                let target = flights.find(f => f.outId === selectedFlightOutId);
-                if (target) {
-                    if (!target.desks.includes(deskId)) {
-                        target.desks.push(deskId);
-                        target.desks.sort((a,b) => a-b);
-                    }
-                    desk.assignedFlightOutId = target.outId;
-                    logEvent(`CHECK-IN OPS: Desk ${deskId} assigned to ${target.outId}.`, "info");
-                }
+            let occupied = flights.find(f => f.stand === standId && !f.isDeparturePunched && !["CANCELLED", "DIVERTED"].includes(f.state) && f.inId !== flightInId);
+            if (occupied) {
+                logEvent(`Stand conflict: ${standId} occupied by ${occupied.inId}!`, "err");
+                document.getElementById(`select-stand-${flightInId}`).value = "";
+                return;
             }
-            updateDynamicStats();
+
+            flight.stand = standId;
+            flight.standAssignedTime = simSeconds;
+            if (flight.state === "HOLDING_FOR_STAND") flight.taxiInEndSec = simSeconds + 60;
+            
+            renderSplitBoardingViews();
+            logEvent(`Stand ${standId} assigned to ${flight.inId}.`, "info");
         }
 
-        function clearDeskAssignment(deskId) {
-            handleDeskDropdownChange(deskId, "");
+        function setFlightGate(flightOutId, gateId) {
+            let flight = flights.find(f => f.outId === flightOutId);
+            if (!flight) return;
+
+            let standObj = AIRPORT.stands.find(s => s.id === flight.stand);
+            let gateObj = AIRPORT.gates.find(g => g.id === gateId);
+
+            if (gateObj && !gateObj.isRemote) {
+                let standNum = flight.stand ? flight.stand.replace('Stand ', '') : null;
+                let expectedGate = `Gate G${standNum}`;
+                if (gateId !== expectedGate) {
+                    alert(`⚠️ CONSTRAINT: Contact Gates strictly connect to their respective stands. Flight at ${flight.stand} can ONLY use ${expectedGate} or Remote Gates (R1–R4).`);
+                    return;
+                }
+            }
+
+            flight.gate = gateId || null;
+            logEvent(`Gate ${gateId || 'Unassigned'} assigned to ${flight.outId}.`, "info");
+            renderSplitBoardingViews();
+            updateDynamicStats();
+            renderFidsBoards();
+        }
+
+        function adjustGateBuses(flightOutId, delta) {
+            let flight = flights.find(f => f.outId === flightOutId);
+            let gateObj = AIRPORT.gates.find(g => g.id === flight.gate);
+            if (!gateObj || !gateObj.isRemote) return;
+
+            let newTotal = gateObj.buses + delta;
+            if (newTotal >= 1 && newTotal <= 4) {
+                gateObj.buses = newTotal;
+                updateDynamicStats();
+            }
         }
 
         function toggleFlightCheckinPause(flightOutId) {
             let f = flights.find(x => x.outId === flightOutId);
             if (!f) return;
             f.checkinPaused = !f.checkinPaused;
-            logEvent(`CHECK-IN OPS: Check-in for ${f.outId} is now ${f.checkinPaused ? 'PAUSED' : 'RESUMED'}.`, f.checkinPaused ? "warn" : "info");
+            logEvent(`Flight ${f.outId} check-in ${f.checkinPaused ? 'PAUSED' : 'RESUMED'}.`, f.checkinPaused ? "warn" : "info");
+            renderCheckinMatrix();
             updateDynamicStats();
         }
 
@@ -1774,16 +1912,21 @@
                 desk.currentPaxTimer = 0;
             });
             f.desks = [];
-            logEvent(`CHECK-IN OPS: All desks assigned to ${f.outId} have been flushed & released.`, "info");
+            f.isDesksFlushed = true;
+            logEvent(`Counters assigned to ${f.outId} flushed & closed.`, "info");
+            renderCheckinMatrix();
+            renderCheckinTable();
+            renderFidsBoards();
             updateDynamicStats();
         }
 
-        // --- PLAYER LIFECYCLE ACTIONS ---
         function approveOutboundLoading(flightInId) {
             let flight = flights.find(f => f.inId === flightInId);
             if (!flight) return;
             flight.isOutboundApproved = true;
-            logEvent(`ACTION: Outbound turnaround approved for ${flight.outId}. Ground loading & servicing initiated.`, "info");
+            logEvent(`Turnaround approved for ${flight.outId}. Ground loading active.`, "info");
+            renderFidsBoards();
+            renderBaggageHubView();
             updateDynamicStats();
         }
 
@@ -1794,10 +1937,6 @@
             let flight = flights.find(f => f.inId === b.assignedFlightInId);
             if (flight) {
                 flight.belts = flight.belts.filter(x => x !== beltId);
-                let btn = document.getElementById(`belt-btn-${flight.inId}-${beltId}`);
-                if (btn) {
-                    btn.classList.remove('selected');
-                }
             }
 
             b.assignedFlightInId = null;
@@ -1808,73 +1947,42 @@
             b.manualStatus = null;
             b.jammed = false;
 
-            logEvent(`BAGGAGE OPS: Carousel Belt ${beltId} flushed and released for new assignments.`, "info");
+            logEvent(`Carousel Belt ${beltId} flushed. Status: BELT CLOSED.`, "info");
+            renderStandsTable();
+            renderBaggageHubView();
+            renderFidsBoards();
             updateDynamicStats();
-        }
-
-        function setStand(flightInId, standId) {
-            let flight = flights.find(f => f.inId === flightInId);
-            if (!standId) { flight.stand = null; return; }
-
-            let stand = AIRPORT.stands.find(s => s.id === standId);
-            if (flight.sizeReq === "L" && stand.size !== "L") {
-                logEvent(`Stand error: ${flight.type} requires Stand 5 (Widebody Category L)!`, "err");
-                document.getElementById(`select-stand-${flightInId}`).value = "";
-                return;
-            }
-
-            let occupied = flights.find(f => f.stand === standId && !["DEPARTED", "CANCELLED", "DIVERTED"].includes(f.state) && f.inId !== flightInId);
-            if (occupied) {
-                logEvent(`Stand conflict: ${standId} already occupied by ${occupied.inId}!`, "err");
-                document.getElementById(`select-stand-${flightInId}`).value = "";
-                return;
-            }
-
-            flight.stand = standId;
-            logEvent(`Stand ${standId} assigned to flight ${flight.inId}.`, "info");
-        }
-
-        function toggleBeltAssignment(flightInId, beltId) {
-            let flight = flights.find(f => f.inId === flightInId);
-            let b = AIRPORT.belts.find(x => x.id === beltId);
-            let btn = document.getElementById(`belt-btn-${flightInId}-${beltId}`);
-
-            if (b.firstBagArrived && flight.belts.includes(beltId)) {
-                logEvent(`LOCKOUT: Cannot deselect Belt ${beltId}. First bag has already arrived on belt!`, "warn");
-                return;
-            }
-
-            if (flight.belts.includes(beltId)) {
-                flight.belts = flight.belts.filter(id => id !== beltId);
-                btn.classList.remove('selected');
-                b.assignedFlightInId = null;
-            } else {
-                if (b.assignedFlightInId && b.assignedFlightInId !== flight.inId) {
-                    logEvent(`CONFLICT: Belt ${beltId} is already assigned to ${b.assignedFlightInId}!`, "err");
-                    return;
-                }
-                flight.belts.push(beltId);
-                btn.classList.add('selected');
-                b.assignedFlightInId = flight.inId;
-            }
-            logEvent(`Flight ${flight.inId} assigned Belts: [${flight.belts.join(', ') || 'None'}].`, "info");
         }
 
         function startBoardingManual(flightOutId) {
             let flight = flights.find(f => f.outId === flightOutId);
+            if (!flight.gate) {
+                alert("⚠️ Please assign a Boarding Gate first!");
+                return;
+            }
             if (flight.service.clean < 100) {
-                logEvent(`INTERLOCK: Cannot start boarding for ${flight.outId}. Cabin cleaning is still in progress!`, "warn");
+                logEvent(`INTERLOCK: Cannot start boarding for ${flight.outId}. Cabin cleaning incomplete!`, "warn");
                 return;
             }
             flight.boardingStarted = true;
             flight.state = "BOARDING";
-            logEvent(`BOARDING CALL: Gate opened for ${flight.outId}. Jetbridge boarding started.`, "info");
+            logEvent(`BOARDING: Gate opened for ${flight.outId}.`, "info");
+            renderFidsBoards();
         }
 
         function toggleBoardingHold(flightOutId) {
             let flight = flights.find(f => f.outId === flightOutId);
-            flight.boardingHeld = !flight.boardingHeld;
-            logEvent(`Boarding for ${flight.outId} is ${flight.boardingHeld ? 'HELD' : 'RESUMED'}.`, flight.boardingHeld ? "warn" : "info");
+            if (flight) flight.boardingHeld = !flight.boardingHeld;
+            renderFidsBoards();
+        }
+
+        function handoverToRampAgent(flightOutId) {
+            let flight = flights.find(f => f.outId === flightOutId);
+            if (!flight || flight.boardedPax < flight.outboundPax) return;
+            flight.isGateHandedOver = true;
+            logEvent(`GATE HANDOVER: Flight ${flight.outId} handed over to Ramp Agent on apron stand.`, "info");
+            renderSplitBoardingViews();
+            updateDynamicStats();
         }
 
         function toggleGlobalCheckin() {
@@ -1882,12 +1990,12 @@
             let btn = document.getElementById('toggle-pause-checkin-btn');
             btn.innerText = AIRPORT.globalCheckinPaused ? "Resume All Desks" : "Pause All Desks";
             btn.classList.toggle('btn-danger', AIRPORT.globalCheckinPaused);
-            logEvent(`Check-in counters across MAA are now ${AIRPORT.globalCheckinPaused ? 'PAUSED' : 'ACTIVE'}.`, "warn");
         }
 
         function dispatchFlight(flightOutId) {
             let flight = flights.find(f => f.outId === flightOutId);
             flight.state = "DEPARTED";
+            flight.departedAtSec = simSeconds;
             totalDeparted++;
 
             let delay = Math.max(0, simSeconds - flight.depSec);
@@ -1902,33 +2010,60 @@
             }
 
             flight.stand = null;
+            flight.gate = null;
             flushFlightDesks(flight.outId);
+            renderSplitBoardingViews();
+            renderFidsBoards();
+            recycleFlightPool();
         }
 
-        // --- FIDS MANUAL OVERRIDES ---
-        function setFidsOverride(flightId, type, status) {
-            let flight = flights.find(f => type === 'ARR' ? f.inId === flightId : f.outId === flightId);
+        // --- MANUAL PUNCH CONTROLS FOR USER ---
+        function punchArrivalFlight(flightInId) {
+            let flight = flights.find(f => f.inId === flightInId);
             if (!flight) return;
-
-            if (type === 'ARR') {
-                flight.manualArrStatus = status === 'AUTO' ? null : status;
-                logEvent(`FIDS: Arrival status for ${flight.inId} overridden to ${status}.`, "info");
-            } else {
-                flight.manualDepStatus = status === 'AUTO' ? null : status;
-                logEvent(`FIDS: Departure status for ${flight.outId} overridden to ${status}.`, "info");
-            }
+            flight.isArrivalPunched = true;
+            logEvent(`FIDS DISMISS: Arrival flight ${flight.inId} punched and removed from public board.`, "info");
             renderFidsBoards();
+            renderBaggageHubView();
+            updateDynamicStats();
+        }
+
+        function punchDepartureFlight(flightOutId) {
+            let flight = flights.find(f => f.outId === flightOutId);
+            if (!flight) return;
+            flight.isDeparturePunched = true;
+            logEvent(`FIDS DISMISS: Departed flight ${flight.outId} punched and archived.`, "info");
+            renderFidsBoards();
+            recycleFlightPool();
+            updateDynamicStats();
         }
 
         function setBeltFidsOverride(beltId, status) {
             let b = AIRPORT.belts.find(x => x.id === beltId);
-            if (!b) return;
-            b.manualStatus = status === 'AUTO' ? null : status;
-            logEvent(`FIDS: Carousel Belt ${b.id} status display overridden to ${status}.`, "info");
+            if (b) b.manualStatus = (status === 'AUTO') ? null : status;
             updateDynamicStats();
         }
 
-        // --- EMERGENCY DIVERSION & CANCELLATION ---
+        // --- MARQUEE CONTROLLER ---
+        function publishMarquee() {
+            let inputEl = document.getElementById('fids-marquee-input');
+            let text = inputEl.value.trim();
+            if (!text) return;
+            document.getElementById('fids-marquee-display').innerText = text.toUpperCase();
+            logEvent(`PA TICKER PUBLISHED: "${text}"`, "warn");
+        }
+
+        function clearMarquee() {
+            document.getElementById('fids-marquee-input').value = "";
+            document.getElementById('fids-marquee-display').innerText = "✈️ WELCOME TO CHENNAI INTERNATIONAL AIRPORT (MAA) — OPERATIONAL EFFICIENCY: 100% — CHECK FIDS SCREENS FOR LIVE GATE AND BAGGAGE ALLOCATIONS";
+        }
+
+        function setMarqueePreset(text) {
+            document.getElementById('fids-marquee-input').value = text;
+            publishMarquee();
+        }
+
+        // --- EMERGENCY ACTIONS MODAL ---
         let pendingAction = null;
 
         function requestFlightAction(flightId, actionType) {
@@ -1968,41 +2103,43 @@
             if (actionType === "DIVERT") {
                 flight.state = "DIVERTED";
                 score = Math.max(0, score - 150);
-                logEvent(`EMERGENCY: Flight ${flight.inId} DIVERTED to alternate. (-150 PTS)`, "err");
+                logEvent(`EMERGENCY: Flight ${flight.inId} DIVERTED. (-150 PTS)`, "err");
             } else if (actionType === "CANCEL_INBOUND") {
                 flight.state = "CANCELLED";
                 score = Math.max(0, score - 200);
-                logEvent(`FLIGHT CANCELLED: Inbound ${flight.inId} cancelled by operations. (-200 PTS)`, "err");
+                logEvent(`Inbound ${flight.inId} cancelled by operations. (-200 PTS)`, "err");
             } else if (actionType === "CANCEL_OUTBOUND") {
                 flight.state = "CANCELLED";
                 score = Math.max(0, score - 200);
-                logEvent(`FLIGHT CANCELLED: Outbound ${flight.outId} cancelled by operations. (-200 PTS)`, "err");
+                logEvent(`Outbound ${flight.outId} cancelled by operations. (-200 PTS)`, "err");
             }
 
             flight.stand = null;
+            flight.gate = null;
             flight.belts.forEach(bId => flushBelt(bId));
             flushFlightDesks(flight.outId);
 
             closeConfirmModal();
+            renderSplitBoardingViews();
             renderFidsBoards();
             updateDynamicStats();
+            recycleFlightPool();
         }
 
-        // --- FIDS RENDER ENGINE ---
+        // --- FIDS RENDER ENGINE WITH MANUAL PUNCH BUTTONS ---
         function renderFidsBoards() {
-            document.getElementById('fids-arr-tbody').innerHTML = flights.map(f => {
+            // ARRIVALS: Keep entry until user manually punches or flight diverted/cancelled
+            let activeArrivals = flights.filter(f => !f.isArrivalPunched && f.state !== "CANCELLED" && f.state !== "DIVERTED")
+                                        .sort((a, b) => a.touchdownSec - b.touchdownSec)
+                                        .slice(0, 6);
+
+            document.getElementById('fids-arr-tbody').innerHTML = activeArrivals.map(f => {
                 let status = "SCHEDULED";
                 let statusColor = "var(--fids-yellow)";
 
                 if (f.manualArrStatus) {
                     status = f.manualArrStatus;
                     statusColor = "var(--accent)";
-                } else if (f.state === "DIVERTED") {
-                    status = "DIVERTED";
-                    statusColor = "var(--danger)";
-                } else if (f.state === "CANCELLED") {
-                    status = "CANCELLED";
-                    statusColor = "var(--danger)";
                 } else if (f.state === "APPROACHING") {
                     status = "APPROACHING";
                 } else if (f.state === "LANDING") {
@@ -2011,15 +2148,19 @@
                     status = "TAXIING IN";
                 } else if (f.state === "HOLDING_FOR_STAND") {
                     status = "WAITING FOR GATE";
+                    statusColor = "var(--danger)";
                 } else if (f.state === "ON_STAND") {
                     status = f.disembarkPax < f.inboundPax ? "DISEMBARKING" : "ON BLOCKS";
                 } else if (f.state === "SERVICING" || f.state === "CLEARED_FOR_BOARDING") {
                     status = "BAGGAGE UNLOAD";
-                } else if (f.state === "BOARDING" || f.state === "READY") {
+                } else if (f.state === "BOARDING" || f.state === "READY_FOR_HANDOVER" || f.state === "READY") {
                     status = "BAGGAGE READY";
-                } else if (f.state === "DEPARTED") {
-                    status = "ARRIVED";
                 }
+
+                // Explicitly display CLOSED once flushed
+                let beltDisplay = f.belts.length ? f.belts.map(b => `Belt ${b}`).join(', ') : (f.bagsOffloadedTotal >= f.inboundBags ? '<strong style="color:var(--text-muted);">CLOSED</strong>' : '--');
+
+                let canPunch = f.isOutboundApproved && f.bagsOffloadedTotal >= f.inboundBags && f.belts.length === 0;
 
                 return `
                     <tr>
@@ -2027,63 +2168,76 @@
                         <td><span class="flight-pill" style="background:${f.color};">${f.inId}</span></td>
                         <td>${f.origin}</td>
                         <td>${f.stand || '--'}</td>
-                        <td>${f.belts.length ? 'Belts ' + f.belts.join(',') : '--'}</td>
+                        <td>${beltDisplay}</td>
                         <td class="fids-status" style="color:${statusColor}">${status}</td>
                         <td>
-                            <div style="display:flex; gap:3px;">
-                                <button class="btn btn-muted" style="padding:2px 5px; font-size:0.68rem;" onclick="setFidsOverride('${f.inId}', 'ARR', 'SEE AGENT')">Agent</button>
-                                <button class="btn btn-muted" style="padding:2px 5px; font-size:0.68rem;" onclick="setFidsOverride('${f.inId}', 'ARR', 'NO INFO')">No Info</button>
-                                <button class="btn btn-muted" style="padding:2px 5px; font-size:0.68rem;" onclick="setFidsOverride('${f.inId}', 'ARR', 'AUTO')">Auto</button>
-                            </div>
+                            ${canPunch ? `
+                                <button class="btn btn-punch" style="padding:2px 6px; font-size:0.68rem;" onclick="punchArrivalFlight('${f.inId}')">
+                                    ✓ PUNCH / CLEAR
+                                </button>
+                            ` : `
+                                <span style="font-size:0.68rem; color:var(--text-muted);">Handling Active</span>
+                            `}
                         </td>
                     </tr>
                 `;
             }).join('');
 
-            document.getElementById('fids-dep-tbody').innerHTML = flights.map(f => {
+            // DEPARTURES: Keep entry until user manually punches after pushback
+            let activeDepartures = flights.filter(f => !f.isDeparturePunched && f.state !== "CANCELLED")
+                                          .sort((a, b) => a.depSec - b.depSec)
+                                          .slice(0, 6);
+
+            document.getElementById('fids-dep-tbody').innerHTML = activeDepartures.map(f => {
                 let status = "SCHEDULED";
                 let statusColor = "var(--fids-yellow)";
 
                 if (f.manualDepStatus) {
                     status = f.manualDepStatus;
                     statusColor = "var(--accent)";
-                } else if (f.state === "CANCELLED") {
-                    status = "CANCELLED";
+                } else if (f.state === "DEPARTED") {
+                    status = "DEPARTED";
+                    statusColor = "var(--text-muted)";
+                } else if (f.boardingHeld) {
+                    status = "BOARDING DELAYED";
                     statusColor = "var(--danger)";
                 } else if (f.checkedInPax > 0 && f.checkedInPax < f.outboundPax) {
                     status = "CHECK-IN OPEN";
-                } else if (f.checkedInPax >= f.outboundPax && !f.boardingStarted && !["READY", "DEPARTED"].includes(f.state)) {
-                    status = "SECURITY OPEN";
-                } else if (f.boardingStarted && !["READY", "DEPARTED"].includes(f.state)) {
-                    status = f.boardingHeld ? "BOARDING HELD" : "BOARDING NOW";
-                } else if (f.state === "READY") {
+                } else if (f.checkedInPax >= f.outboundPax && !f.boardingStarted && !["READY", "READY_FOR_HANDOVER"].includes(f.state)) {
+                    status = "GATE OPEN";
+                } else if (f.boardingStarted && !["READY", "READY_FOR_HANDOVER"].includes(f.state)) {
+                    status = "BOARDING NOW";
+                    statusColor = "var(--success)";
+                } else if (f.state === "READY_FOR_HANDOVER" || f.state === "READY") {
                     status = "FINAL CALL";
                     statusColor = "var(--danger)";
-                } else if (f.state === "DEPARTED") {
-                    status = "DEPARTED";
                 }
+
+                let deskDisplay = f.isDesksFlushed ? `<strong style="color:var(--text-muted);">CLOSED</strong>` : (f.desks.length ? f.desks.join(',') : '--');
 
                 return `
                     <tr>
                         <td><strong>${formatClock(f.depSec)}</strong></td>
                         <td><span class="flight-pill" style="background:${f.color};">${f.outId}</span></td>
                         <td>${f.dest}</td>
-                        <td>${f.desks.length ? f.desks.join(',') : '--'}</td>
-                        <td>${f.stand ? f.stand.replace('Stand ', 'Gate ') : '--'}</td>
+                        <td>${deskDisplay}</td>
+                        <td>${f.gate || '--'}</td>
                         <td class="fids-status" style="color:${statusColor}">${status}</td>
                         <td>
-                            <div style="display:flex; gap:3px;">
-                                <button class="btn btn-muted" style="padding:2px 5px; font-size:0.68rem;" onclick="setFidsOverride('${f.outId}', 'DEP', 'SEE AGENT')">Agent</button>
-                                <button class="btn btn-muted" style="padding:2px 5px; font-size:0.68rem;" onclick="setFidsOverride('${f.outId}', 'DEP', 'NO INFO')">No Info</button>
-                                <button class="btn btn-muted" style="padding:2px 5px; font-size:0.68rem;" onclick="setFidsOverride('${f.outId}', 'DEP', 'AUTO')">Auto</button>
-                            </div>
+                            ${f.state === "DEPARTED" ? `
+                                <button class="btn btn-punch" style="padding:2px 6px; font-size:0.68rem;" onclick="punchDepartureFlight('${f.outId}')">
+                                    ✓ PUNCH / CLEAR
+                                </button>
+                            ` : `
+                                <span style="font-size:0.68rem; color:var(--text-muted);">In Terminal</span>
+                            `}
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // --- HUD & LOGGING UTILITIES ---
+        // --- HUD & UTILITIES ---
         function updateHUD() {
             document.getElementById('clock-display').innerText = formatClock(simSeconds);
             document.getElementById('score-display').innerText = Math.floor(score);
@@ -2101,9 +2255,7 @@
         function setSpeed(s, btn) {
             if (isGamePaused) togglePauseGame();
             simSpeed = s;
-            document.querySelectorAll('.speed-btn').forEach(b => {
-                if (b.id !== 'pause-toggle-btn') b.classList.remove('active');
-            });
+            document.querySelectorAll('.speed-btn').forEach(b => { if (b.id !== 'pause-toggle-btn') b.classList.remove('active'); });
             btn.classList.add('active');
         }
 
@@ -2111,7 +2263,7 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + viewKey).classList.add('active');
-            btn.classList.add('active');
+            if (btn && btn.classList) btn.classList.add('active');
         }
 
         function formatClock(sec) {
